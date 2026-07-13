@@ -23,6 +23,6 @@ function followRedirect(url, resolve) {
 }
 
 exports.handler = async function(event, context) {
-  const URL = 'https://script.google.com/macros/s/AKfycby75V2eOLhXqjRdsB50rYXUvO2KpZCVhbXQl1FMvCUuJspZs4GBPvEU6lxSjnasiRSM/exec';
+const URL = 'https://script.google.com/macros/s/AKfycbwq7L3z3eLH-G-fqnxPoXPOErS36Y9YnjB65ZW3bbeca-8yRkoxVfNIum0E5pNq_rM/exec';
   return new Promise((resolve) => followRedirect(URL, resolve));
 };

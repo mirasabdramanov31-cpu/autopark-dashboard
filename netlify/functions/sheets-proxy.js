@@ -16,18 +16,20 @@ exports.handler = async function(event, context) {
           const json = JSON.parse(data);
           const rawRows = json.values || [];
           
+          // Структура таблицы (A=0):
+          // A(0)=№ | B(1)=Дата | C(2)=Статья | D(3)=Контрагент
+          // E(4)=Сумма | F(5)=Проект | G(6)=Разбивка по г/н | H(7)=...
+
           const rows = [];
           rawRows.forEach(row => {
-            const dateVal = row[1];
+            const dateVal = row[1]; // B - Дата
             if (!dateVal) return;
             
-            // Парсим дату ДД.ММ.ГГГГ → ГГГГ-ММ-ДД
             let dateStr = '';
             if (typeof dateVal === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateVal)) {
               const [dd, mm, yyyy] = dateVal.split('.');
               dateStr = `${yyyy}-${mm}-${dd}`;
             } else if (typeof dateVal === 'number' && dateVal > 40000) {
-              // Excel serial number
               const d = new Date((dateVal - 25569) * 86400 * 1000);
               dateStr = d.toISOString().substring(0, 10);
             } else {
@@ -35,15 +37,15 @@ exports.handler = async function(event, context) {
             }
             if (!dateStr) return;
 
-            const amt = parseFloat(String(row[5] || '0').replace(/[^\d.]/g, '')) || 0;
-            
+            const amt = parseFloat(String(row[4] || '0').replace(/[^\d.]/g, '')) || 0; // E - Сумма
+
             rows.push({
               date:  dateStr,
-              type:  String(row[3] || '').trim(),
-              contr: String(row[4] || '').trim(),
-              amt:   amt,
-              proj:  String(row[6] || '').trim(),
-              tech:  String(row[7] || '').trim()
+              type:  String(row[2] || '').trim(),   // C - Статья
+              contr: String(row[3] || '').trim(),   // D - Контрагент
+              amt:   amt,                            // E - Сумма
+              proj:  String(row[5] || '').trim(),   // F - Проект
+              tech:  String(row[6] || '').trim()    // G - Разбивка по г/н
             });
           });
 
@@ -59,7 +61,7 @@ exports.handler = async function(event, context) {
           resolve({
             statusCode: 500,
             headers: { 'Access-Control-Allow-Origin': '*' },
-            body: JSON.stringify({ ok: false, error: e.message, raw: data.substring(0, 200) })
+            body: JSON.stringify({ ok: false, error: e.message, raw: data.substring(0, 300) })
           });
         }
       });

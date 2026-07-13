@@ -3,811 +3,2188 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Автопарк — Главный дашборд</title>
+<title>Автопарк — ТОО СК Фаворит Инжиниринг</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.44.0/tabler-icons.min.css"/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-:root{
-  --bg:#0d1117;
-  --surface:#161b22;
-  --surface2:#1c2330;
-  --surface3:#21262d;
-  --border:#30363d;
-  --border2:#484f58;
-  --text:#e6edf3;
-  --text2:#8b949e;
-  --text3:#484f58;
-  --blue:#388bfd;
-  --blue-dim:#1f6feb;
-  --blue-bg:rgba(56,139,253,0.1);
-  --green:#3fb950;
-  --green-bg:rgba(63,185,80,0.1);
-  --cyan:#39d353;
-  --amber:#d29922;
-  --amber-bg:rgba(210,153,34,0.1);
-  --red:#f85149;
-  --red-bg:rgba(248,81,73,0.1);
-  --purple:#a371f7;
-  --purple-bg:rgba(163,113,247,0.1);
-  --teal:#56d364;
-  --r:6px;
-  --rl:8px;
-}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',monospace;background:var(--bg);color:var(--text);min-height:100vh;font-size:13px;}
-
-/* Top nav */
-.topnav{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;background:var(--surface);border-bottom:0.5px solid var(--border);position:sticky;top:0;z-index:200;}
-.topnav-logo{display:flex;align-items:center;gap:10px;font-size:13px;font-weight:600;color:var(--text);}
-.topnav-logo i{color:var(--green);font-size:16px;}
-.nav-tabs{display:flex;gap:2px;}
-.ntab{padding:5px 14px;border-radius:var(--r);font-size:12px;color:var(--text2);cursor:pointer;border:none;background:none;font-family:inherit;transition:all .14s;}
-.ntab:hover{background:var(--surface3);color:var(--text);}
-.ntab.active{background:var(--surface3);color:var(--text);border:0.5px solid var(--border2);}
-.topnav-right{display:flex;align-items:center;gap:8px;}
-.lupd{font-size:11px;color:var(--text3);}
-
-/* Status indicator */
-.status-dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:4px;}
-.s-online{background:var(--green);box-shadow:0 0 6px var(--green);animation:glow 2s infinite;}
-.s-err{background:var(--red);}
-.s-load{background:var(--amber);animation:pulse 1s infinite;}
-@keyframes glow{0%,100%{opacity:1}50%{opacity:.5}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-.main{padding:16px 20px 48px;}
-
-/* Section header */
-.sec-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-.sec-title{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.06em;display:flex;align-items:center;gap:6px;}
-.sec-title i{font-size:14px;}
-.sec-sub{font-size:11px;color:var(--text3);}
-
-/* Buttons */
-.btn{display:inline-flex;align-items:center;gap:5px;font-size:12px;padding:5px 12px;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--surface2);color:var(--text2);cursor:pointer;font-family:inherit;transition:all .13s;}
-.btn:hover{background:var(--surface3);color:var(--text);}
-.btn-green{border-color:var(--green);color:var(--green);background:var(--green-bg);}
-.btn-green:hover{background:rgba(63,185,80,0.18);}
-.btn-blue{border-color:var(--blue);color:var(--blue);background:var(--blue-bg);}
-
-/* Metric cards */
-.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:14px;}
-.mc{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:13px 14px;position:relative;overflow:hidden;}
-.mc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
-.mc-blue::before{background:var(--blue);}
-.mc-green::before{background:var(--green);}
-.mc-amber::before{background:var(--amber);}
-.mc-red::before{background:var(--red);}
-.mc-purple::before{background:var(--purple);}
-.mc .lb{font-size:11px;color:var(--text2);display:flex;align-items:center;gap:4px;margin-bottom:6px;}
-.mc .vl{font-size:22px;font-weight:700;line-height:1;font-family:monospace;}
-.mc .sb{font-size:11px;color:var(--text3);margin-top:4px;}
-.mc-blue .vl{color:var(--blue);}
-.mc-green .vl{color:var(--green);}
-.mc-amber .vl{color:var(--amber);}
-.mc-red .vl{color:var(--red);}
-.mc-purple .vl{color:var(--purple);}
-
-/* Cards */
-.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rl);padding:14px 16px;}
-.ct{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
-.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:10px;}
-.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:10px;}
-.mb10{margin-bottom:10px;}
-
-/* Chart */
-.ch{position:relative;width:100%;height:200px;}
-.ch-sm{height:140px;}
-.ch-lg{height:260px;}
-
-/* Vehicle status list */
-.vst-list{display:flex;flex-direction:column;gap:4px;}
-.vst-row{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:var(--r);border:0.5px solid var(--border);font-size:12px;transition:background .13s;cursor:pointer;}
-.vst-row:hover{background:var(--surface2);}
-.vst-icon{width:28px;height:28px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
-.vst-name{flex:1;color:var(--text);font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.vst-meta{font-size:11px;color:var(--text3);}
-
-/* Badge */
-.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:99px;white-space:nowrap;}
-.b-green{background:var(--green-bg);color:var(--green);border:0.5px solid rgba(63,185,80,0.3);}
-.b-blue{background:var(--blue-bg);color:var(--blue);border:0.5px solid rgba(56,139,253,0.3);}
-.b-amber{background:var(--amber-bg);color:var(--amber);border:0.5px solid rgba(210,153,34,0.3);}
-.b-red{background:var(--red-bg);color:var(--red);border:0.5px solid rgba(248,81,73,0.3);}
-.b-gray{background:var(--surface3);color:var(--text2);border:0.5px solid var(--border);}
-.b-purple{background:var(--purple-bg);color:var(--purple);border:0.5px solid rgba(163,113,247,0.3);}
-
-/* Table */
-.tw{overflow-x:auto;}
-table.tbl{width:100%;border-collapse:collapse;font-size:12px;}
-.tbl th{font-size:10px;color:var(--text3);font-weight:600;text-align:left;padding:0 8px 8px;border-bottom:0.5px solid var(--border);white-space:nowrap;letter-spacing:.04em;text-transform:uppercase;}
-.tbl td{padding:8px;border-bottom:0.5px solid var(--border);color:var(--text);}
-.tbl tr:last-child td{border-bottom:none;}
-.tbl tbody tr:hover td{background:var(--surface2);}
-.num{text-align:right;font-family:monospace;font-weight:600;}
-.sm{font-size:10px;color:var(--text3);}
-
-/* Progress bars */
-.prog-bar{height:4px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-top:6px;}
-.prog-fill{height:100%;border-radius:99px;transition:width .6s ease;}
-
-/* Budget plan/fact mini */
-.pf-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px;}
-.pf-row:last-child{border-bottom:none;}
-.pf-name{flex:1;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;}
-.pf-plan{min-width:80px;text-align:right;color:var(--text3);font-size:11px;font-family:monospace;}
-.pf-fact{min-width:80px;text-align:right;font-family:monospace;font-weight:600;}
-.pf-pct{min-width:44px;text-align:right;font-size:11px;}
-
-/* Fuel bars */
-.fl-item{margin-bottom:10px;}
-.fl-item:last-child{margin-bottom:0;}
-.fl-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;}
-.fl-bg{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden;}
-.fl-fill{height:100%;border-radius:99px;}
-
-/* Loading overlay */
-#ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:12px;}
-.spin{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--sf:#161b22;--s2:#1c2330;--s3:#21262d;--b:#30363d;--b2:#484f58;--t:#e6edf3;--t2:#8b949e;--t3:#484f58;--blue:#388bfd;--blue-bg:rgba(56,139,253,.12);--green:#3fb950;--green-bg:rgba(63,185,80,.12);--amber:#d29922;--amber-bg:rgba(210,153,34,.12);--red:#f85149;--red-bg:rgba(248,81,73,.12);--purple:#a371f7;--purple-bg:rgba(163,113,247,.12);--teal:#39c5cf;--teal-bg:rgba(57,197,207,.12);--r:6px;--rl:8px}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:var(--bg);color:var(--t);min-height:100vh;font-size:13px}
+.nav{display:flex;align-items:center;gap:10px;padding:0 18px;background:var(--sf);border-bottom:.5px solid var(--b);position:sticky;top:0;z-index:200;height:48px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:7px;font-size:13px;font-weight:600;white-space:nowrap;margin-right:8px}
+.logo i{color:var(--green);font-size:15px}
+.logo small{font-size:10px;color:var(--t2);font-weight:400}
+.nav-tabs{display:flex;gap:0;flex:1}
+.ntab{padding:0 16px;height:48px;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--t2);cursor:pointer;border:none;background:none;font-family:inherit;border-bottom:2px solid transparent;transition:all .13s;white-space:nowrap}
+.ntab:hover{color:var(--t);background:var(--s2)}
+.ntab.active{color:var(--green);border-bottom-color:var(--green);background:var(--s2)}
+.ntab i{font-size:14px}
+.nav-r{display:flex;align-items:center;gap:8px;margin-left:auto;flex-shrink:0}
+.sdot{width:6px;height:6px;border-radius:50%;flex-shrink:0;display:inline-block}
+.s-ok{background:var(--green);box-shadow:0 0 5px var(--green);animation:glow 2s infinite}
+.s-err{background:var(--red)}
+.s-load{background:var(--amber);animation:blink 1s infinite}
+@keyframes glow{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.spin{width:20px;height:20px;border:2px solid var(--b);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
 @keyframes spin{to{transform:rotate(360deg)}}
-.ov-msg{font-size:12px;color:var(--text2);font-family:monospace;}
+#ov{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:999;gap:10px}
+.ov-msg{font-size:12px;color:var(--t2);font-family:monospace}
+.pbar{display:flex;align-items:center;gap:4px;padding:7px 18px;background:var(--s2);border-bottom:.5px solid var(--b);flex-wrap:wrap}
+.pbar-lbl{font-size:10px;color:var(--t3);margin-right:3px}
+.pbtn{padding:3px 10px;border-radius:var(--r);font-size:11px;border:.5px solid var(--b2);background:var(--s3);color:var(--t2);cursor:pointer;font-family:inherit;transition:all .13s}
+.pbtn.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.pbtn:hover:not(.active){background:var(--s2);color:var(--t)}
+.dr{display:none;align-items:center;gap:4px}
+.dr.show{display:flex}
+.dr input{padding:3px 7px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s3);color:var(--t)}
+.main{padding:14px 18px 48px}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:8px;margin-bottom:12px}
+.mc{background:var(--sf);border:.5px solid var(--b);border-radius:var(--rl);padding:12px 13px;position:relative;overflow:hidden}
+.mc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px}
+.mc-blue::before{background:var(--blue)}.mc-green::before{background:var(--green)}.mc-amber::before{background:var(--amber)}.mc-red::before{background:var(--red)}.mc-purple::before{background:var(--purple)}.mc-teal::before{background:var(--teal)}
+.mc .lb{font-size:10px;color:var(--t2);margin-bottom:4px;display:flex;align-items:center;gap:3px}
+.mc .vl{font-size:20px;font-weight:700;line-height:1;font-family:monospace}
+.mc .sb{font-size:10px;color:var(--t3);margin-top:3px}
+.mc-blue .vl{color:var(--blue)}.mc-green .vl{color:var(--green)}.mc-amber .vl{color:var(--amber)}.mc-red .vl{color:var(--red)}.mc-purple .vl{color:var(--purple)}.mc-teal .vl{color:var(--teal)}
+.prog{height:3px;background:var(--s3);border-radius:99px;overflow:hidden;margin-top:5px}
+.prog-f{height:100%;border-radius:99px}
+.card{background:var(--sf);border:.5px solid var(--b);border-radius:var(--rl);padding:13px 15px;margin-bottom:10px}
+.ct{font-size:10px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px;display:flex;align-items:center;gap:5px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+.mb10{margin-bottom:10px}
+.ch{position:relative;width:100%;height:200px}
+.ch-lg{height:240px}
+.tw{overflow-x:auto;max-height:460px;overflow-y:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:12px}
+.tbl thead{position:sticky;top:0;z-index:5;background:var(--sf)}
+.tbl th{font-size:10px;color:var(--t3);font-weight:600;text-align:left;padding:0 8px 8px;border-bottom:.5px solid var(--b);white-space:nowrap;text-transform:uppercase;letter-spacing:.04em}
+.tbl td{padding:7px 8px;border-bottom:.5px solid var(--b);color:var(--t);white-space:nowrap}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tbody tr:hover td{background:var(--s2)}
+.num{text-align:right;font-family:monospace;font-weight:600}
+.badge{font-size:10px;font-weight:600;padding:2px 6px;border-radius:99px;white-space:nowrap}
+.b-green{background:var(--green-bg);color:var(--green);border:.5px solid rgba(63,185,80,.3)}
+.b-blue{background:var(--blue-bg);color:var(--blue);border:.5px solid rgba(56,139,253,.3)}
+.b-amber{background:var(--amber-bg);color:var(--amber);border:.5px solid rgba(210,153,34,.3)}
+.b-red{background:var(--red-bg);color:var(--red);border:.5px solid rgba(248,81,73,.3)}
+.b-gray{background:var(--s3);color:var(--t2);border:.5px solid var(--b)}
+.b-teal{background:var(--teal-bg);color:var(--teal);border:.5px solid rgba(57,197,207,.3)}
+.btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:5px 11px;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t2);cursor:pointer;font-family:inherit;transition:all .13s}
+.btn:hover{background:var(--s3);color:var(--t)}
+.btn-g{border-color:var(--green);color:var(--green);background:var(--green-bg)}
+.btn-b{border-color:var(--blue);color:var(--blue);background:var(--blue-bg)}
+.srow{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:.5px solid var(--b);font-size:12px}
+.srow:last-child{border-bottom:none}
+.slb{color:var(--t2)}.svl{font-weight:600;font-family:monospace}
+.filters{display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap;align-items:center}
+.filters select,.filters input{padding:4px 7px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t)}
+.filters input[type=text]{width:150px}
+.pg{display:flex;align-items:center;gap:7px;margin-top:8px;font-size:11px;color:var(--t3)}
+.pg button{padding:3px 8px;font-size:11px;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t2);cursor:pointer;font-family:inherit}
+.pg button:disabled{opacity:.35;cursor:default}
+.fl-bar{width:44px;height:3px;background:var(--s3);border-radius:99px;overflow:hidden;display:inline-block;vertical-align:middle;margin-left:3px}
+.fl-fill{height:100%;border-radius:99px}
+.live{display:inline-flex;align-items:center;gap:3px;font-size:10px;color:var(--green)}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:glow 1.4s infinite}
+.hint{font-size:11px;color:var(--t2);margin-bottom:8px;padding:6px 9px;background:var(--s2);border-radius:var(--r)}
+.cat-row{display:grid;grid-template-columns:1fr 80px 80px 70px 36px 56px;gap:4px;align-items:center;padding:6px 0;border-bottom:.5px solid var(--b);font-size:11px}
+.cat-row:last-child{border-bottom:none}
+.cat-bar{height:3px;background:var(--s3);border-radius:99px;overflow:hidden}
+.cat-bar-f{height:100%;border-radius:99px}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;align-items:center;justify-content:center}
+.modal-bg.open{display:flex}
+.modal{background:var(--sf);border-radius:var(--rl);padding:20px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;border:.5px solid var(--b2)}
+.modal h3{font-size:14px;font-weight:600;margin-bottom:13px;display:flex;align-items:center;gap:7px}
+.mx{float:right;background:none;border:none;cursor:pointer;font-size:18px;color:var(--t2);line-height:1;margin-top:-2px}
+.fgrp{margin-bottom:9px}
+.flb{font-size:11px;color:var(--t2);margin-bottom:3px;display:block}
+.fi{width:100%;padding:6px 8px;font-size:12px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t)}
+.fi:focus{outline:none;border-color:var(--blue)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.pin-inp{width:130px;padding:10px;font-size:22px;letter-spacing:6px;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t);text-align:center;font-family:monospace}
+.pin-inp:focus{outline:none;border-color:var(--blue)}
+.pin-err{color:var(--red);font-size:11px;margin-top:5px;display:none}
+@media(max-width:768px){.g2{grid-template-columns:1fr}.metrics{grid-template-columns:repeat(2,1fr)}.nav-tabs{overflow-x:auto}.cat-row{grid-template-columns:1fr 65px 65px 55px 30px 44px}}
 
-/* Error banner */
-.err-bar{display:none;background:var(--red-bg);border:0.5px solid var(--red);border-radius:var(--r);padding:10px 14px;font-size:12px;color:var(--red);margin-bottom:12px;align-items:center;gap:8px;}
-.err-bar.on{display:flex;}
-
-/* Srow */
-.srow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:0.5px solid var(--border);font-size:12px;}
-.srow:last-child{border-bottom:none;}
-.slb{color:var(--text2);}
-.svl{font-weight:600;font-family:monospace;}
-
-/* Filters */
-.filters{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;}
-.filters select,.filters input{padding:4px 8px;font-size:12px;font-family:inherit;border-radius:var(--r);border:0.5px solid var(--border2);background:var(--surface2);color:var(--text2);}
-
-/* Link to other dashboards */
-.dash-link{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--rl);border:0.5px solid var(--border);background:var(--surface2);cursor:pointer;transition:all .14s;text-decoration:none;}
-.dash-link:hover{border-color:var(--blue);background:var(--blue-bg);}
-.dash-link-icon{width:36px;height:36px;border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.dash-link-title{font-size:13px;font-weight:600;color:var(--text);}
-.dash-link-sub{font-size:11px;color:var(--text3);margin-top:1px;}
-
-@media(max-width:768px){.g2,.g3,.g4{grid-template-columns:1fr 1fr;}.metrics{grid-template-columns:repeat(2,1fr);}}
-@media(max-width:480px){.metrics{grid-template-columns:1fr 1fr;}}
+/* ── SECTION LOADING OVERLAY ── */
+.section-loader{position:absolute;inset:0;background:rgba(13,17,23,.85);backdrop-filter:blur(4px);z-index:100;display:flex;flex-direction:column;align-items:center;justify-content:center;border-radius:var(--rl);pointer-events:all}
+.section-loader.hidden{display:none}
+.loader-spinner{width:48px;height:48px;border:3px solid var(--b2);border-top-color:var(--green);border-radius:50%;animation:spin .8s linear infinite;margin-bottom:16px}
+.loader-bar{width:280px;height:3px;background:var(--b2);border-radius:99px;overflow:hidden;margin-bottom:12px}
+.loader-bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--green),var(--blue));transition:width .3s ease;animation:loader-pulse 2s ease-in-out infinite}
+@keyframes loader-pulse{0%,100%{opacity:1}50%{opacity:.6}}
+.loader-title{font-size:14px;font-weight:600;color:var(--t);margin-bottom:6px}
+.loader-sub{font-size:11px;color:var(--t2);font-family:monospace}
+.loader-progress{font-size:11px;color:var(--green);font-family:monospace;margin-top:4px}
+.page-relative{position:relative}
 </style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="manifest" href="data:application/json,{%22name%22:%22%D0%90%D0%B2%D1%82%D0%BE%D0%BF%D0%B0%D1%80%D0%BA%20%D0%A4%D0%B0%D0%B2%D0%BE%D1%80%D0%B8%D1%82%22,%22short_name%22:%22%D0%90%D0%B2%D1%82%D0%BE%D0%BF%D0%B0%D1%80%D0%BA%22,%22display%22:%22standalone%22,%22background_color%22:%22%230d1117%22,%22theme_color%22:%22%233fb950%22,%22icons%22:[{%22src%22:%22data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9A%9B%3C/text%3E%3C/svg%3E%22,%22sizes%22:%22any%22,%22type%22:%22image/svg+xml%22}]}">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Автопарк">
 </head>
 <body>
-
-<div id="ov">
-  <div class="spin"></div>
-  <div class="ov-msg" id="ov-msg">Инициализация системы...</div>
+<!-- AUTH SCREEN -->
+<div id="auth-screen" style="position:fixed;inset:0;background:#0d1117;z-index:9999;display:flex;align-items:center;justify-content:center;">
+  <div style="background:#161b22;border:.5px solid #30363d;border-radius:12px;padding:40px;width:100%;max-width:380px;text-align:center">
+    <div style="font-size:40px;margin-bottom:10px">🚛</div>
+    <div style="font-size:17px;font-weight:600;color:#e6edf3;margin-bottom:4px">Автопарк</div>
+    <div style="font-size:12px;color:#8b949e;margin-bottom:28px">ТОО СК Фаворит Инжиниринг</div>
+    <div id="g_id_onload"
+      data-client_id="197772134932-d2poojjh2np7mqfjobejtfpv9r5dtb1q.apps.googleusercontent.com"
+      data-callback="handleGoogleLogin"
+      data-auto_prompt="false">
+    </div>
+    <div class="g_id_signin"
+      data-type="standard"
+      data-size="large"
+      data-theme="outline"
+      data-text="sign_in_with"
+      data-shape="rectangular"
+      data-logo_alignment="left"
+      data-width="300">
+    </div>
+    <div id="auth-err" style="color:#f85149;font-size:12px;margin-top:14px;display:none;padding:8px;background:rgba(248,81,73,.1);border-radius:6px;border:.5px solid rgba(248,81,73,.3)">
+      ⛔ Нет доступа. Обратитесь к администратору.
+    </div>
+    <div style="font-size:10px;color:#484f58;margin-top:20px">Только для авторизованных сотрудников</div>
+  </div>
 </div>
 
-<!-- Top Nav -->
-<nav class="topnav">
-  <div class="topnav-logo">
-    <i class="ti ti-truck"></i>
-    <span>Автопарк / Мониторинг</span>
-    <span style="color:var(--text3);font-size:11px;font-weight:400">ТОО СК Фаворит Инжиниринг</span>
-  </div>
+<div id="ov"><div class="spin"></div><div class="ov-msg" id="ov-msg">Подключение к Omnicomm...</div></div>
+
+<nav class="nav">
+  <div class="logo"><i class="ti ti-truck"></i><span>Автопарк<small> / ТОО СК Фаворит Инжиниринг</small></span></div>
   <div class="nav-tabs">
-    <button class="ntab active" onclick="goPage('overview')">Обзор</button>
-    <button class="ntab" onclick="goPage('fleet')">Парк</button>
-    <button class="ntab" onclick="goPage('fuel')">ГСМ</button>
-    <button class="ntab" onclick="goPage('budget')">Бюджет</button>
-    <button class="ntab" onclick="window.open('expenses_dashboard.html')">Затраты <i class="ti ti-external-link" style="font-size:10px"></i></button>
+    <button class="ntab active" onclick="goPage('budget')"><i class="ti ti-coin"></i> Бюджет</button>
+    <button class="ntab" onclick="goPage('expenses')"><i class="ti ti-receipt"></i> Затраты</button>
+    <button class="ntab" onclick="goPage('gsm')"><i class="ti ti-gas-station"></i> ГСМ</button>
+    <button class="ntab" onclick="goPage('fleet')"><i class="ti ti-truck"></i> Парк ТС</button>
+    <button class="ntab" onclick="goPage('map')"><i class="ti ti-map"></i> Карта</button>
   </div>
-  <div class="topnav-right">
-    <span class="lupd" id="lupd"></span>
-    <span id="conn-st"><span class="status-dot s-load"></span><span style="font-size:11px;color:var(--text3)">Подключение...</span></span>
-    <button class="btn btn-green" onclick="loadAll()"><i class="ti ti-refresh"></i> Обновить</button>
+  <div class="nav-r">
+    <span id="lupd" style="font-size:10px;color:var(--t3);font-family:monospace"></span>
+    <div style="display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t3)"><span class="sdot s-load" id="sdot"></span><span id="conn-txt">Подключение...</span></div>
+    <button class="btn btn-g" onclick="loadAll()"><i class="ti ti-refresh"></i> Обновить</button>
+    <span id="srv-status" style="margin-left:8px"><span style="color:var(--t3);font-size:11px"><i class="ti ti-server"></i> Сервер не настроен</span></span>
   </div>
 </nav>
 
+<!-- BUDGET period bar (quarters) -->
+<div class="pbar" id="pbar-budget">
+  <span class="pbar-lbl">Период:</span>
+  <button class="pbtn active" id="pb-month"  onclick="setPeriod('month',this)">Месяц</button>
+  <button class="pbtn" id="pb-q1"     onclick="setPeriod('q1',this)">Q1 (Янв–Мар)</button>
+  <button class="pbtn" id="pb-q2"     onclick="setPeriod('q2',this)">Q2 (Апр–Июн)</button>
+  <button class="pbtn" id="pb-q3"     onclick="setPeriod('q3',this)">Q3 (Июл–Сен)</button>
+  <button class="pbtn" id="pb-q4"     onclick="setPeriod('q4',this)">Q4 (Окт–Дек)</button>
+  <button class="pbtn" id="pb-year"   onclick="setPeriod('year',this)">Год</button>
+  <button class="pbtn" id="pb-custom" onclick="setPeriod('custom',this)">Выбор ▾</button>
+  <div class="dr" id="pdr">
+    <select id="pdr-m-from" onchange="applyMonthRange()" style="padding:3px 7px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s3);color:var(--t)">
+      <option value="0">Январь</option><option value="1">Февраль</option><option value="2">Март</option>
+      <option value="3">Апрель</option><option value="4">Май</option><option value="5">Июнь</option>
+      <option value="6">Июль</option><option value="7">Август</option><option value="8">Сентябрь</option>
+      <option value="9">Октябрь</option><option value="10">Ноябрь</option><option value="11">Декабрь</option>
+    </select>
+    <span style="font-size:10px;color:var(--t3)">—</span>
+    <select id="pdr-m-to" onchange="applyMonthRange()" style="padding:3px 7px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s3);color:var(--t)">
+      <option value="0">Январь</option><option value="1">Февраль</option><option value="2">Март</option>
+      <option value="3">Апрель</option><option value="4">Май</option><option value="5">Июнь</option>
+      <option value="6">Июль</option><option value="7">Август</option><option value="8">Сентябрь</option>
+      <option value="9">Октябрь</option><option value="10">Ноябрь</option><option value="11">Декабрь</option>
+    </select>
+  </div>
+  <span id="pbar-info" style="margin-left:8px;font-size:11px;color:var(--t3)"></span>
+</div>
+<!-- GENERAL period bar (today/week/month/year/calendar) — for Expenses, GSM -->
+<div class="pbar" id="pbar-general" style="display:none">
+  <span class="pbar-lbl">Период:</span>
+  <button class="pbtn" id="gp-today"  onclick="setGenPeriod('today',this)">Сегодня</button>
+  <button class="pbtn" id="gp-week"   onclick="setGenPeriod('week',this)">Неделя</button>
+  <button class="pbtn active" id="gp-month" onclick="setGenPeriod('month',this)">Месяц</button>
+  <button class="pbtn" id="gp-year"   onclick="setGenPeriod('year',this)">Год</button>
+  <button class="pbtn" id="gp-custom" onclick="setGenPeriod('custom',this)">Период ▾</button>
+  <div class="dr" id="gpdr">
+    <input type="date" id="gpdr-from" onchange="applyGenPeriod()">
+    <span style="font-size:10px;color:var(--t3)">—</span>
+    <input type="date" id="gpdr-to" onchange="applyGenPeriod()">
+  </div>
+  <span id="gpbar-info" style="margin-left:8px;font-size:11px;color:var(--t3)"></span>
+</div>
+
 <div class="main">
 
-  <div class="err-bar" id="errBar">
-    <i class="ti ti-alert-triangle"></i>
-    <span id="errTxt"></span>
-    <button class="btn" style="margin-left:auto;font-size:11px" onclick="loadAll()">Повторить</button>
-  </div>
-
-  <!-- ═══ OVERVIEW ═══ -->
-  <div id="page-overview">
-    <!-- Metrics -->
-    <div class="metrics" id="ov-metrics">
-      <div class="mc mc-green"><div class="lb"><i class="ti ti-list-numbers"></i> Всего ТС</div><div class="vl" id="m-total">161</div><div class="sb">в реестре</div></div>
-      <div class="mc mc-blue"><div class="lb"><i class="ti ti-circle-check"></i> Онлайн</div><div class="vl" id="m-online">—</div><div class="sb" id="m-online-s">нет данных</div></div>
-      <div class="mc mc-green"><div class="lb"><i class="ti ti-navigation"></i> В движении</div><div class="vl" id="m-moving">—</div><div class="sb">сейчас</div></div>
-      <div class="mc mc-amber"><div class="lb"><i class="ti ti-parking"></i> Стоянка</div><div class="vl" id="m-parked">—</div><div class="sb">стоят</div></div>
-      <div class="mc mc-red"><div class="lb"><i class="ti ti-wifi-off"></i> Нет связи</div><div class="vl" id="m-offline">—</div><div class="sb">офлайн</div></div>
-    </div>
-
-    <div class="g2 mb10">
-      <!-- Vehicle list -->
-      <div class="card">
-        <div class="ct"><i class="ti ti-truck"></i> Транспортные средства</div>
-        <div class="vst-list" id="vst-list">
-          <div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">Загрузка данных Omnicomm...</div>
-        </div>
-        <div style="margin-top:10px;text-align:right">
-          <button class="btn btn-blue btn-sm" onclick="goPage('fleet')" style="font-size:11px">Все ТС →</button>
-        </div>
-      </div>
-
-      <!-- Right col -->
-      <div style="display:flex;flex-direction:column;gap:10px;">
-        <!-- Summary -->
-        <div class="card">
-          <div class="ct"><i class="ti ti-chart-bar"></i> Статистика парка</div>
-          <div class="srow"><span class="slb">Лёгкая колонна (пикапы)</span><span class="svl">54 ед</span></div>
-          <div class="srow"><span class="slb">Тяжёлая колонна</span><span class="svl">70 ед</span></div>
-          <div class="srow"><span class="slb">Вагоны / прочее</span><span class="svl">37 ед</span></div>
-          <div class="srow"><span class="slb">Год выпуска</span><span class="svl">2023–2025</span></div>
-        </div>
-        <!-- Budget mini -->
-        <div class="card">
-          <div class="ct"><i class="ti ti-coin"></i> Бюджет — OPEX план/факт</div>
-          <div id="budget-mini"></div>
-          <div style="margin-top:10px;text-align:right">
-            <button class="btn btn-blue" onclick="goPage('budget')" style="font-size:11px">Подробнее →</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Charts row -->
-    <div class="g2 mb10">
-      <div class="card">
-        <div class="ct"><i class="ti ti-chart-line"></i> Активность парка по дням</div>
-        <div class="ch"><canvas id="actChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="ct"><i class="ti ti-chart-pie"></i> Структура парка</div>
-        <div class="ch"><canvas id="typeChart"></canvas></div>
-      </div>
-    </div>
-
-    <!-- Links to other dashboards -->
-    <div class="g3">
-      <a class="dash-link" onclick="goPage('fleet')">
-        <div class="dash-link-icon" style="background:var(--blue-bg);color:var(--blue)"><i class="ti ti-car"></i></div>
-        <div><div class="dash-link-title">Парк ТС</div><div class="dash-link-sub">161 машина · Omnicomm GPS</div></div>
-      </a>
-      <a class="dash-link" onclick="goPage('budget')">
-        <div class="dash-link-icon" style="background:var(--amber-bg);color:var(--amber)"><i class="ti ti-coin"></i></div>
-        <div><div class="dash-link-title">Бюджет</div><div class="dash-link-sub">План / Факт · CAPEX + OPEX</div></div>
-      </a>
-      <a class="dash-link" onclick="window.open('expenses_dashboard.html')">
-        <div class="dash-link-icon" style="background:var(--purple-bg);color:var(--purple)"><i class="ti ti-receipt"></i></div>
-        <div><div class="dash-link-title">Затраты</div><div class="dash-link-sub">ТО · ГСМ · Сервис</div></div>
-      </a>
-    </div>
-  </div>
-
-  <!-- ═══ FLEET ═══ -->
-  <div id="page-fleet" style="display:none">
-    <div class="sec-hdr">
-      <div><div class="sec-title"><i class="ti ti-truck"></i> Транспортные средства</div><div class="sec-sub" id="fleet-sub">161 единица · данные Omnicomm</div></div>
-      <button class="btn btn-green" onclick="loadAll()"><i class="ti ti-refresh"></i> Обновить</button>
-    </div>
-    <div class="metrics" style="grid-template-columns:repeat(5,1fr)" id="fleet-metrics"></div>
+<!-- BUDGET -->
+<div id="page-budget" class="page-relative">
+  <div class="metrics" id="bud-metrics"></div>
+  <div class="g2 mb10">
     <div class="card">
-      <div class="filters">
-        <select id="fl-col" onchange="renderFleetTbl()"><option value="">Все колонны</option><option value="light">Лёгкая</option><option value="heavy">Тяжёлая</option></select>
-        <select id="fl-vtype" onchange="renderFleetTbl()"><option value="">Все типы</option><option>Пикап</option><option>Погрузчик</option><option>Манипулятор</option><option>Бульдозер</option><option>Тягач</option><option>Трактор</option><option>ГНБ</option><option>Трал</option><option>Вагон</option><option>Самосвал</option></select>
-        <select id="fl-status" onchange="renderFleetTbl()"><option value="">Все статусы</option><option value="moving">В движении</option><option value="parked">Стоянка</option><option value="offline">Нет связи</option></select>
-        <input type="text" id="fl-srch" placeholder="Поиск..." oninput="renderFleetTbl()" style="width:150px">
-      </div>
-      <div class="tw"><table class="tbl">
-        <thead><tr><th>Тип</th><th>Гос. номер</th><th>Марка / Модель</th><th>Год</th><th>Колонна</th><th>Статус</th><th>Скорость</th><th>Пробег сег.</th><th>Топливо</th><th>Сигнал</th></tr></thead>
-        <tbody id="fleet-tbody"></tbody>
-      </table></div>
-      <div class="pg" style="display:flex;align-items:center;gap:8px;margin-top:10px;font-size:11px;color:var(--text3)">
-        <button class="btn" id="fl-prev" onclick="flPg(-1)">← Назад</button>
-        <span id="fl-pg"></span>
-        <button class="btn" id="fl-next" onclick="flPg(1)">Далее →</button>
-        <span style="margin-left:auto" id="fl-total"></span>
-      </div>
+      <div class="ct"><i class="ti ti-trending-up"></i> OPEX план / факт по месяцам (млн тг)</div>
+      <div class="ch ch-lg"><canvas id="opex-chart"></canvas></div>
     </div>
-  </div>
-
-  <!-- ═══ FUEL ═══ -->
-  <div id="page-fuel" style="display:none">
-    <div class="sec-hdr">
-      <div><div class="sec-title"><i class="ti ti-gas-station"></i> ГСМ</div><div class="sec-sub">АИ-92 → Лёгкая · ДТ → Тяжёлая</div></div>
-    </div>
-    <div class="metrics" style="grid-template-columns:repeat(4,1fr)" id="fuel-metrics"></div>
-    <div class="g2">
-      <div class="card">
-        <div class="ct"><i class="ti ti-droplet"></i> Уровень топлива по ТС</div>
-        <div id="fuel-bars"><div style="color:var(--text3);text-align:center;padding:20px;font-size:12px">Нет данных Omnicomm</div></div>
-      </div>
-      <div class="card">
-        <div class="ct"><i class="ti ti-receipt"></i> История счетов ГСМ</div>
-        <div class="tw"><table class="tbl">
-          <thead><tr><th>Дата</th><th>Тип</th><th>Поставщик</th><th>Литры</th><th>Цена/л</th><th class="num">Сумма</th></tr></thead>
-          <tbody id="fuel-history"></tbody>
-        </table></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ═══ BUDGET ═══ -->
-  <div id="page-budget" style="display:none">
-    <div class="sec-hdr">
-      <div><div class="sec-title"><i class="ti ti-coin"></i> Бюджет — план / факт</div><div class="sec-sub">CAPEX + OPEX · 164 единицы техники</div></div>
-    </div>
-
-    <!-- Summary metrics -->
-    <div class="metrics" style="grid-template-columns:repeat(5,1fr)" id="bud-metrics"></div>
-
-    <!-- Charts -->
-    <div class="g2 mb10">
-      <div class="card">
-        <div class="ct"><i class="ti ti-chart-bar"></i> CAPEX по типам техники (млрд тг)</div>
-        <div class="ch ch-lg"><canvas id="capexChart"></canvas></div>
-      </div>
-      <div class="card">
-        <div class="ct"><i class="ti ti-chart-donut"></i> Структура OPEX/месяц</div>
-        <div class="ch ch-lg"><canvas id="opexPieChart"></canvas></div>
-      </div>
-    </div>
-
-    <!-- OPEX plan/fact chart -->
-    <div class="card mb10">
-      <div class="ct"><i class="ti ti-trending-up"></i> OPEX — план vs факт по месяцам (млн тг)</div>
-      <div class="ch ch-lg"><canvas id="opexMonthChart"></canvas></div>
-    </div>
-
-    <!-- Budget table -->
     <div class="card">
-      <div class="ct"><i class="ti ti-table"></i> Бюджет по типам техники</div>
-      <div class="tw"><table class="tbl">
-        <thead><tr>
-          <th>Тип техники</th><th>Кол-во</th>
-          <th class="num">Цена ед.</th>
-          <th class="num">CAPEX</th>
-          <th class="num">OPEX/год план</th>
-          <th class="num">OPEX/мес план</th>
-          <th class="num">OPEX/мес факт</th>
-          <th class="num">%</th>
-          <th>Прогресс</th>
-        </tr></thead>
-        <tbody id="bud-tbody"></tbody>
-      </table></div>
+      <div class="ct"><i class="ti ti-layout-distribute-vertical"></i> Структура OPEX план — распределение</div>
+      <div id="opex-structure" style="padding:4px 0"></div>
     </div>
   </div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-table"></i> OPEX по статьям — план / факт за период</div>
+    <div style="display:grid;grid-template-columns:1fr 80px 80px 70px 36px 56px;gap:4px;font-size:9px;color:var(--t3);padding-bottom:5px;border-bottom:.5px solid var(--b);margin-bottom:4px;text-transform:uppercase;letter-spacing:.04em">
+      <span>Статья</span><span style="text-align:right">План/мес</span><span style="text-align:right">Факт</span><span style="text-align:right">Остаток</span><span style="text-align:right">%</span><span></span>
+    </div>
+    <div id="bud-cats"></div>
+  </div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-list"></i> OPEX по типам техники (план/мес)</div>
+    <div class="tw"><table class="tbl">
+      <thead id="bud-types-head"><tr><th>Тип техники</th><th class="num">Кол-во</th><th class="num" id="th-opex-plan">OPEX план</th><th class="num">На единицу</th><th class="num">Обслуживание</th><th class="num">GPS</th><th class="num">ОГПО/КАСКО</th><th class="num">Стоянка</th></tr></thead>
+      <tbody id="bud-types"></tbody>
+    </table></div>
+  </div>
+</div>
+
+<!-- EXPENSES -->
+<div id="page-expenses" class="page-relative" style="display:none">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <div style="font-size:13px;font-weight:500" id="exp-hdr">Затраты</div>
+      <span id="sheets-status" style="font-size:10px;color:var(--t3)">⏳ Загрузка из таблицы...</span>
+    </div>
+    <div style="display:flex;gap:7px" id="exp-btns">
+      <button class="btn btn-b" onclick="refresh()"><i class="ti ti-refresh"></i> Обновить</button>
+      <button class="btn btn-g" id="btn-unplanned" style="display:none" onclick="openAddExp()"><i class="ti ti-plus"></i> Внести внеплановые затраты</button>
+      <button class="btn btn-b" id="btn-edit" style="display:none" onclick="openEditMode()"><i class="ti ti-pencil"></i> Внести корректировки</button>
+    </div>
+  </div>
+  <!-- Expenses chart row -->
+  <div class="g2 mb10" id="exp-charts-row">
+    <div class="card">
+      <div class="ct"><i class="ti ti-trending-up"></i> Затраты по месяцам</div>
+      <div class="ch" style="height:180px"><canvas id="exp-month-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct"><i class="ti ti-podium"></i> Топ-5 по сумме затрат</div>
+      <div id="exp-top5" style="padding:4px 0"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="filters">
+      <select id="ef-type" onchange="renderExp()">
+        <option value="">Все типы</option>
+        <option>ГСМ</option><option>Техническое обслуживание</option>
+        <option>Сервисное обслуживание</option><option>Расходники/оборудование</option><option>Внеплановые</option>
+      </select>
+      <input type="text" id="ef-srch" placeholder="Поиск..." oninput="renderExp()" style="width:160px">
+    </div>
+    <div class="tw"><table class="tbl">
+      <thead><tr><th>Дата</th><th>Тип</th><th>Описание</th><th>Контрагент</th><th>Техника / Г.Н.</th><th class="num">Общая сумма</th><th class="num">На машину</th><th></th></tr></thead>
+      <tbody id="exp-tbody"></tbody>
+    </table></div>
+    <div style="padding:6px 0;font-size:10px;color:var(--t2)" id="exp-foot"></div>
+  </div>
+</div>
+
+<!-- GSM -->
+<div id="page-gsm" class="page-relative" style="display:none">
+<div class="section-loader hidden" id="gsm-loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-bar"><div class="loader-bar-fill" id="gsm-bar" style="width:0%"></div></div>
+  <div class="loader-title">Загрузка данных ГСМ</div>
+  <div class="loader-sub" id="gsm-loader-msg">Запрос к Omnicomm...</div>
+  <div class="loader-progress" id="gsm-loader-progress"></div>
+</div>
+
+  <div class="metrics" id="gsm-metrics"></div>
+  <div class="g2 mb10">
+    <div class="card">
+      <div class="ct"><i class="ti ti-trending-up"></i> ГСМ план / факт (млн тг)</div>
+      <div class="ch ch-lg"><canvas id="gsm-chart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct"><i class="ti ti-flame"></i> Топливный баланс</div>
+      <div id="fuel-balance" style="padding:8px 0"></div>
+    </div>
+  </div>
+  <!-- GSM Anomalies -->
+  <div class="card mb10" id="gsm-anomaly-card" style="display:none">
+    <div class="ct"><i class="ti ti-alert-triangle" style="color:var(--red)"></i> Аномалии расхода топлива</div>
+    <div id="gsm-anomalies"></div>
+  </div>
+
+  <div class="card mb10">
+    <div class="ct"><i class="ti ti-car"></i> Расход и заправка по машинам за период</div>
+    <div class="hint" id="gsm-hint">⏳ Загрузка данных Omnicomm...</div>
+    <div class="filters">
+      <input type="text" id="gsm-srch" placeholder="Поиск по номеру..." oninput="renderGsmTable()" style="width:140px">
+      <div id="gsm-type-wrap" style="position:relative;display:inline-block">
+        <button onclick="toggleGsmTypes()" style="padding:4px 10px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t);cursor:pointer;display:flex;align-items:center;gap:5px" id="gsm-type-btn">
+          <i class="ti ti-filter"></i> <span id="gsm-type-lbl">Все типы</span> ▾
+        </button>
+        <div id="gsm-type-dd" style="display:none;position:absolute;top:100%;left:0;z-index:50;background:var(--sf);border:.5px solid var(--b2);border-radius:var(--r);padding:6px;min-width:200px;margin-top:3px;box-shadow:0 4px 20px rgba(0,0,0,.4)">
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''">
+            <input type="checkbox" id="gt-all" checked onchange="gsmTypeAll(this)" style="accent-color:var(--blue)"> Все типы
+          </label>
+          <div style="border-top:.5px solid var(--b);margin:4px 0"></div>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Пикап" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🚙 Пикап</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Седельный тягач" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🚛 Седельный тягач</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Манипулятор КМУ" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🏗️ Манипулятор КМУ</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Бульдозер" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🚜 Бульдозер</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Экскаватор-погрузчик" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> ⛏️ Экскаватор-погрузчик</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Установка ГНБ" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🔩 Установка ГНБ</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Трактор-траншеекопатель" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🚜 Трактор-траншеекопатель</label>
+          <label style="display:flex;align-items:center;gap:6px;padding:4px 6px;cursor:pointer;font-size:11px;border-radius:4px" onmouseover="this.style.background='var(--s2)'" onmouseout="this.style.background=''"><input type="checkbox" class="gt" value="Траншеекопатель" checked onchange="updateGsmTypes()" style="accent-color:var(--blue)"> 🚜 Траншеекопатель</label>
+        </div>
+      </div>
+      <select id="gsm-fuel" onchange="renderGsmTable()"><option value="">Всё топливо</option><option>АИ-92</option><option>ДТ</option></select>
+    </div>
+    <div class="tw"><table class="tbl">
+      <thead><tr><th>Гос. номер</th><th>Марка</th><th>Топл.</th><th>Источник</th><th class="num">Расход, л</th><th class="num">л/100км</th><th class="num">Расход, тг</th><th class="num">Заправка, л</th><th class="num">Заправка, тг</th></tr></thead>
+      <tbody id="gsm-tbody"></tbody>
+    </table></div>
+    <div class="pg" style="display:none"><button id="gp-prev" onclick="gsmPg(-1)">← Назад</button><span id="gp-pg"></span><button id="gp-next" onclick="gsmPg(1)">Далее →</button><span style="margin-left:auto" id="gp-total"></span></div>
+  </div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-receipt"></i> История счетов ГСМ</div>
+    <div class="tw"><table class="tbl">
+      <thead><tr><th>Дата</th><th>Счёт</th><th>Поставщик</th><th>Тип</th><th class="num">Литры</th><th class="num">Цена/л</th><th class="num">Сумма</th><th class="num">На маш.</th><th></th></tr></thead>
+      <tbody id="gsm-inv"></tbody>
+    </table></div>
+    <div style="margin-top:8px;text-align:right"><button class="btn btn-g" onclick="askPin('gsm')"><i class="ti ti-plus"></i> Добавить счёт</button></div>
+  </div>
+</div>
+
+<!-- FLEET -->
+<div id="page-fleet" class="page-relative" style="display:none">
+<div class="section-loader hidden" id="fleet-loader">
+  <div class="loader-spinner"></div>
+  <div class="loader-bar"><div class="loader-bar-fill" id="fleet-bar" style="width:0%"></div></div>
+  <div class="loader-title">Загрузка данных Omnicomm</div>
+  <div class="loader-sub" id="fleet-loader-msg">Подключение к серверу...</div>
+  <div class="loader-progress" id="fleet-loader-progress"></div>
+</div>
+
+  <div class="metrics" id="fleet-metrics"></div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;flex-wrap:wrap;gap:7px">
+      <div class="ct" style="margin-bottom:0"><i class="ti ti-truck"></i> Транспортные средства <span class="live" id="fleet-live" style="display:none"><span class="ldot"></span>Live</span></div>
+      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+        <span style="font-size:10px;color:var(--t2)">Период:</span>
+        <button class="pbtn active" id="fp-today" onclick="setFleetP('today',this)">Сегодня</button>
+        <button class="pbtn" id="fp-week" onclick="setFleetP('week',this)">Неделя</button>
+        <button class="pbtn" id="fp-month" onclick="setFleetP('month',this)">Месяц</button>
+        <button class="pbtn" id="fp-custom" onclick="setFleetP('custom',this)">Период ▾</button>
+        <div class="dr" id="fleet-dr">
+          <input type="date" id="fdr-from" onchange="refreshFleet()">
+          <span style="font-size:10px;color:var(--t3)">—</span>
+          <input type="date" id="fdr-to" onchange="refreshFleet()">
+        </div>
+        <button class="btn btn-g" onclick="cacheClear();refreshFleet()"><i class="ti ti-refresh"></i> Обновить</button>
+        <span id="cache-badge" style="font-size:10px;color:var(--t3);font-family:monospace"></span>
+        <button class="btn" onclick="sendTestEmail()" style="border-color:var(--amber);color:var(--amber)"><i class="ti ti-mail"></i> Тест Email</button>
+      </div>
+    </div>
+    <div class="hint" id="fleet-hint"></div>
+    <div class="filters">
+      <input type="text" id="fl-srch" placeholder="Поиск..." oninput="renderFleet()">
+      <select id="fl-type" onchange="renderFleet()">
+        <option value="">Все типы</option><option>Пикап</option><option>Экскаватор-погрузчик</option>
+        <option>Манипулятор КМУ</option><option>Бульдозер</option><option>Седельный тягач</option>
+        <option>Трактор-траншеекопатель</option><option>Установка ГНБ</option><option>Траншеекопатель</option>
+      </select>
+      <select id="fl-conn" onchange="renderFleet()"><option value="">Все статусы</option><option value="online">В сети</option><option value="offline">Не в сети</option></select>
+      <select id="fl-fuel" onchange="renderFleet()"><option value="">Всё</option><option>АИ-92</option><option>ДТ</option></select>
+    </div>
+    <div class="tw"><table class="tbl">
+      <thead><tr>
+        <th>№</th><th>Гос. номер</th><th>Марка / Модель</th><th>Тип</th><th>Топл.</th>
+        <th>Связь</th><th>Статус</th><th class="num">Скорость</th>
+        <th class="num" id="th-c1">Остаток бака</th>
+        <th class="num" id="th-c2">Текущий пробег</th>
+        <th class="num" id="th-c3">Остаток до ТО</th>
+        <th>Сигнал</th>
+      </tr></thead>
+      <tbody id="fleet-tbody"></tbody>
+    </table></div>
+    <div class="pg" style="display:none"><button id="fl-prev" onclick="flPg(-1)">← Назад</button><span id="fl-pg"></span><button id="fl-next" onclick="flPg(1)">Далее →</button><span style="margin-left:auto" id="fl-total"></span></div>
+    <div style="font-size:11px;color:var(--t3);padding:6px 0" id="fl-total-vis"></div>
+  </div>
+</div>
 
 </div>
 
-<script>
-// ══════════════════════════════════════════════
-//  CONFIG
-// ══════════════════════════════════════════════
-const API_BASE  = 'https://kz.omnicomm.online';
-const LOGIN     = 'fto5';
-const PASSWORD  = 'F1jnvvbAV';
-const LIGHT_CNT = 54;
-const HEAVY_CNT = 70;
-const PG        = 20;
+<!-- MAP PAGE -->
+<div id="page-map" class="page-relative" style="display:none;padding:14px 18px 48px">
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px">
+      <div class="ct" style="margin-bottom:0"><i class="ti ti-map-pin"></i> Карта транспортных средств <span class="live" id="map-live" style="display:none"><span class="ldot"></span>Live</span></div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+        <button class="pbtn active" id="mv-all" onclick="setMapView('all',this)">Все ТС</button>
+        <button class="pbtn" id="mv-online" onclick="setMapView('online',this)">В сети</button>
+        <button class="pbtn" id="mv-heat" onclick="setMapView('heat',this)">Тепловая карта</button>
+        <select id="map-type-filter" onchange="refreshMap()" style="padding:3px 7px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t)">
+          <option value="">Все типы</option>
+          <option>Пикап</option><option>Седельный тягач</option><option>Манипулятор КМУ</option>
+          <option>Бульдозер</option><option>Экскаватор-погрузчик</option><option>Установка ГНБ</option>
+        </select>
+        <button class="btn btn-g" onclick="refreshMap()"><i class="ti ti-refresh"></i> Обновить</button>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px">
+      <div class="mc mc-green" style="padding:8px 12px"><div class="lb">В сети</div><div class="vl" id="map-online-cnt">—</div></div>
+      <div class="mc mc-red" style="padding:8px 12px"><div class="lb">Не в сети</div><div class="vl" id="map-offline-cnt">—</div></div>
+      <div class="mc mc-blue" style="padding:8px 12px"><div class="lb">В движении</div><div class="vl" id="map-moving-cnt">—</div></div>
+      <div class="mc mc-amber" style="padding:8px 12px"><div class="lb">Холостой</div><div class="vl" id="map-idle-cnt">—</div></div>
+    </div>
+    <div id="map-container" style="height:480px;border-radius:var(--r);overflow:hidden;border:.5px solid var(--b)"></div>
+  </div>
+  <div class="card">
+    <div class="ct"><i class="ti ti-route"></i> История маршрута</div>
+    <div style="background:var(--s2);border-radius:var(--r);padding:8px 10px;margin-bottom:10px;font-size:11px;color:var(--t2)">
+      ℹ️ Выберите до <b style="color:var(--green)">5 машин</b> и период. Больше машин/дней = дольше загрузка.
+    </div>
+    <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap;margin-bottom:10px">
+      <div>
+        <div style="font-size:10px;color:var(--t3);margin-bottom:3px">Машины (до 5)</div>
+        <select id="route-vehicles" multiple size="6" style="width:180px;padding:4px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t)">
+        </select>
+        <div style="font-size:10px;color:var(--t3);margin-top:2px">Ctrl+Click для выбора нескольких</div>
+      </div>
+      <div>
+        <div style="font-size:10px;color:var(--t3);margin-bottom:3px">Период</div>
+        <div style="display:flex;flex-direction:column;gap:5px">
+          <input type="date" id="route-from" style="padding:4px 8px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t)">
+          <span style="font-size:10px;color:var(--t3)">—</span>
+          <input type="date" id="route-to" style="padding:4px 8px;font-size:11px;font-family:inherit;border-radius:var(--r);border:.5px solid var(--b2);background:var(--s2);color:var(--t)">
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;padding-top:18px">
+        <button class="pbtn" onclick="setRouteQuick('today')">Сегодня</button>
+        <button class="pbtn" onclick="setRouteQuick('yesterday')">Вчера</button>
+        <button class="pbtn" onclick="setRouteQuick('week')">Неделя</button>
+      </div>
+      <div style="padding-top:18px;display:flex;flex-direction:column;gap:6px">
+        <button class="btn btn-b" onclick="loadRoute()"><i class="ti ti-route"></i> Показать маршрут</button>
+        <button class="btn" onclick="clearRoute()"><i class="ti ti-x"></i> Очистить</button>
+      </div>
+    </div>
+    <div id="route-info" style="font-size:11px;color:var(--t2);margin-bottom:8px"></div>
+    <div id="route-map" style="height:420px;border-radius:var(--r);overflow:hidden;border:.5px solid var(--b)"></div>
+  </div>
+</div>
 
-// ══════════════════════════════════════════════
-//  BUDGET DATA (из Excel)
-// ══════════════════════════════════════════════
-const BUDGET = [
-  {type:'Кабелеукладчик Shantui',     count:12, price:159732663, capex:1919791956,  opex_year:684591436.92,  opex_month:57049286.41,  full_opex_month:77455238.32},
-  {type:'Седельный тягач c тралом',   count:9,  price:72401255,  capex:653861295,   opex_year:269424790.65,  opex_month:22452065.89,  full_opex_month:29402122.17},
-  {type:'Манипулятор с КМУ 6*6',      count:17, price:51800000,  capex:884850000,   opex_year:412998000,     opex_month:34416500,     full_opex_month:43821793.37},
-  {type:'Буровая установка ГНБ',      count:5,  price:70000000,  capex:351250000,   opex_year:39790000,      opex_month:3315833.33,   full_opex_month:7049357.99},
-  {type:'Прицеп для ГНБ',             count:5,  price:25000000,  capex:125000000,   opex_year:11050000,      opex_month:920833.33,    full_opex_month:2249489.80},
-  {type:'Экскаватор-погрузчик',       count:24, price:51337500,  capex:1238100000,  opex_year:582279000,     opex_month:48523250,     full_opex_month:61683326.53},
-  {type:'Жилой вагончик',             count:16, price:9000000,   capex:144000000,   opex_year:14560000,      opex_month:1213333.33,   full_opex_month:2743945.58},
-  {type:'Хозяйственный вагончик',     count:5,  price:11000000,  capex:55000000,    opex_year:5050000,       opex_month:420833.33,    full_opex_month:1005442.18},
-  {type:'Траншеекопатель Hidromek',   count:5,  price:8250000,   capex:41250000,    opex_year:2887500,       opex_month:240625,       full_opex_month:679081.63},
-  {type:'Дизельный генератор',        count:5,  price:5000000,   capex:26250000,    opex_year:21040000,      opex_month:1753333.33,   full_opex_month:2032351.19},
-  {type:'Траншеекопатель DongFeng',   count:5,  price:21500000,  capex:108750000,   opex_year:89865000,      opex_month:7488750,      full_opex_month:8644681.12},
-  {type:'Траншеекопатель XCMG',       count:2,  price:37441072,  capex:75382144,    opex_year:39017750.08,   opex_month:3251479.17,   full_opex_month:4052734.96},
-  {type:'Пикап 4х4',                  count:54, price:15000000,  capex:823500000,   opex_year:257472000,     opex_month:21456000,     full_opex_month:30209188.78},
+<!-- PIN Modal -->
+<div class="modal-bg" id="pin-modal">
+  <div class="modal" style="max-width:300px;text-align:center">
+    <h3 style="justify-content:center"><i class="ti ti-lock"></i> PIN-код</h3>
+    <input type="password" class="pin-inp" id="pin-inp" maxlength="6" placeholder="••••" onkeydown="if(event.key==='Enter')checkPin()">
+    <div class="pin-err" id="pin-err">Неверный PIN</div>
+    <div style="margin-top:12px;display:flex;gap:7px;justify-content:center">
+      <button class="btn btn-b" onclick="checkPin()"><i class="ti ti-check"></i> Войти</button>
+      <button class="btn" onclick="document.getElementById('pin-modal').classList.remove('open')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Expense Modal -->
+<div class="modal-bg" id="exp-modal">
+  <div class="modal">
+    <button class="mx" onclick="document.getElementById('exp-modal').classList.remove('open')">×</button>
+    <h3><i class="ti ti-plus"></i> Внеплановые затраты</h3>
+    <div class="frow" style="margin-bottom:9px">
+      <div class="fgrp"><label class="flb">Дата *</label><input type="date" class="fi" id="f-date"></div>
+      <div class="fgrp"><label class="flb">Тип</label>
+        <select class="fi" id="f-type"><option value="Внеплановые">Внеплановые</option><option value="Техническое обслуживание">ТО</option><option value="Сервисное обслуживание">Сервис</option><option value="Расходники/оборудование">Расходники</option></select>
+      </div>
+    </div>
+    <div class="frow" style="margin-bottom:9px">
+      <div class="fgrp"><label class="flb">Сумма (тг) *</label><input type="number" class="fi" id="f-amt"></div>
+      <div class="fgrp"><label class="flb">Контрагент</label><input type="text" class="fi" id="f-contr"></div>
+    </div>
+    <div class="fgrp"><label class="flb">Описание *</label><input type="text" class="fi" id="f-desc"></div>
+    <div class="fgrp"><label class="flb">Гос. номера (через запятую)</label><input type="text" class="fi" id="f-plates" placeholder="522CY01, 578CY01..."></div>
+    <div style="display:flex;gap:7px;margin-top:12px">
+      <button class="btn btn-g" onclick="saveExp()"><i class="ti ti-check"></i> Сохранить</button>
+      <button class="btn" onclick="document.getElementById('exp-modal').classList.remove('open')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add GSM Invoice Modal -->
+<div class="modal-bg" id="gsm-modal">
+  <div class="modal">
+    <button class="mx" onclick="document.getElementById('gsm-modal').classList.remove('open')">×</button>
+    <h3><i class="ti ti-gas-station"></i> Добавить счёт ГСМ</h3>
+    <div class="frow" style="margin-bottom:9px">
+      <div class="fgrp"><label class="flb">Дата *</label><input type="date" class="fi" id="gi-date"></div>
+      <div class="fgrp"><label class="flb">Тип</label><select class="fi" id="gi-type"><option value="ДТ">ДТ (дизель)</option><option value="АИ-92">АИ-92 (бензин)</option></select></div>
+    </div>
+    <div class="frow" style="margin-bottom:9px">
+      <div class="fgrp"><label class="flb">№ Счёта</label><input type="text" class="fi" id="gi-bill"></div>
+      <div class="fgrp"><label class="flb">Поставщик</label><input type="text" class="fi" id="gi-supp"></div>
+    </div>
+    <div class="frow" style="margin-bottom:9px">
+      <div class="fgrp"><label class="flb">Литры *</label><input type="number" class="fi" id="gi-liters" oninput="calcG()"></div>
+      <div class="fgrp"><label class="flb">Цена/л (тг) *</label><input type="number" class="fi" id="gi-ppl" oninput="calcG()"></div>
+    </div>
+    <div class="fgrp"><label class="flb">Сумма (тг)</label><input type="number" class="fi" id="gi-amt" readonly style="opacity:.7"></div>
+    <div style="display:flex;gap:7px;margin-top:12px">
+      <button class="btn btn-g" onclick="saveGsm()"><i class="ti ti-check"></i> Сохранить</button>
+      <button class="btn" onclick="document.getElementById('gsm-modal').classList.remove('open')">Отмена</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API='https://kz.omnicomm.online',LOGIN='fto5',PASS='F1jnvvbAV',PIN='4682';
+
+// ── СЕРВЕР АВТОПАРКА ─────────────────────────
+// Когда сервер будет установлен — поменяйте IP здесь (одно место!)
+// Формат: 'http://192.168.1.100:3000'  (локальная сеть офиса)
+const SERVER_URL = null; // null = сервер ещё не установлен, работаем локально
+
+// API-клиент: все запросы к серверу через эту функцию
+const srv = {
+  // Проверка доступности сервера
+  async ping() {
+    if(!SERVER_URL) return false;
+    try { const r = await fetch(SERVER_URL+'/api/ping',{signal:AbortSignal.timeout(2000)}); return r.ok; }
+    catch { return false; }
+  },
+
+  // Затраты
+  async getExpenses()    { return this._get('/api/expenses'); },
+  async saveExpense(e)   { return this._post('/api/expenses', e); },
+  async deleteExpense(id){ return this._del('/api/expenses/'+id); },
+
+  // ГСМ счета
+  async getGsmInvoices()    { return this._get('/api/gsm-invoices'); },
+  async saveGsmInvoice(g)   { return this._post('/api/gsm-invoices', g); },
+  async deleteGsmInvoice(id){ return this._del('/api/gsm-invoices/'+id); },
+
+  // Реестр ТС
+  async getRegistry()      { return this._get('/api/registry'); },
+  async saveRegistry(reg)  { return this._post('/api/registry/bulk', reg); },
+
+  // Бюджет
+  async getBudget()        { return this._get('/api/budget'); },
+  async saveBudget(data)   { return this._post('/api/budget', data); },
+
+  // GPS данные (кэш на сервере)
+  async saveGpsSnapshot(data){ return this._post('/api/gps-snapshot', data); },
+  async getGpsSnapshot()     { return this._get('/api/gps-snapshot'); },
+
+  // Синхронизация всех данных с сервером
+  async syncAll() {
+    if(!SERVER_URL) return;
+    try {
+      // Отправляем все локальные данные на сервер
+      await Promise.all([
+        this.saveExpense({bulk: expenses}),
+        this.saveGsmInvoice({bulk: gsmInvoices}),
+        this.saveRegistry(REG),
+      ]);
+      console.log('[Сервер] Синхронизация выполнена');
+    } catch(e) { console.warn('[Сервер] Ошибка синхронизации:', e.message); }
+  },
+
+  // Загрузка всех данных с сервера
+  async loadAll() {
+    if(!SERVER_URL) return false;
+    try {
+      const [exp, gsm, reg, bud] = await Promise.all([
+        this.getExpenses(),
+        this.getGsmInvoices(),
+        this.getRegistry(),
+        this.getBudget(),
+      ]);
+      if(exp?.data?.length)  expenses     = exp.data;
+      if(gsm?.data?.length)  gsmInvoices  = gsm.data;
+      // REG и BUDGET обновляем только если сервер вернул данные
+      console.log('[Сервер] Данные загружены:', {expenses: exp?.data?.length, gsm: gsm?.data?.length});
+      return true;
+    } catch(e) { console.warn('[Сервер] Ошибка загрузки:', e.message); return false; }
+  },
+
+  // Вспомогательные методы
+  async _get(path) {
+    if(!SERVER_URL) return null;
+    const r = await fetch(SERVER_URL+path, {headers:{'Authorization':'Bearer '+srvToken}, signal:AbortSignal.timeout(5000)});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  },
+  async _post(path, body) {
+    if(!SERVER_URL) return null;
+    const r = await fetch(SERVER_URL+path, {method:'POST', headers:{'Content-Type':'application/json','Authorization':'Bearer '+srvToken}, body:JSON.stringify(body), signal:AbortSignal.timeout(5000)});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  },
+  async _del(path) {
+    if(!SERVER_URL) return null;
+    const r = await fetch(SERVER_URL+path, {method:'DELETE', headers:{'Authorization':'Bearer '+srvToken}, signal:AbortSignal.timeout(5000)});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return r.json();
+  },
+};
+
+let srvToken = localStorage.getItem('srv_token') || null;
+let srvOnline = false;
+
+// Статус сервера в шапке
+async function checkServer() {
+  srvOnline = await srv.ping();
+  const el = document.getElementById('srv-status');
+  if(!el) return;
+  if(!SERVER_URL) {
+    el.innerHTML = '<span style="color:var(--t3);font-size:11px"><i class="ti ti-server"></i> Сервер не настроен</span>';
+  } else if(srvOnline) {
+    el.innerHTML = '<span style="color:var(--green);font-size:11px"><i class="ti ti-server"></i> Сервер онлайн</span>';
+  } else {
+    el.innerHTML = '<span style="color:var(--red);font-size:11px"><i class="ti ti-server-off"></i> Сервер недоступен</span>';
+  }
+}
+const LC=54,HC=72,PG=999;
+
+// ── BUDGET DATA ──────────────────────────────
+
+// OPEX из Excel Бюджет_тт.xlsx
+// OPEX = Обслуживание + GPS + ОГПО/КАСКО + Стоянка
+const BUDGET=[
+  // Данные точно из Excel Бюджет_тт.xlsx
+  // type, n, opex_yr (Opex в год), svc (Обслуживание/мес), gps (GPS/мес), ins (ОГПО/КАСКО/мес), park (Стоянка/мес), opex_mo (Opex в месяц)
+  {type:'Кабелеукладчик Shantui',         n:12, opex_yr:140847437, svc:11181286, gps:96000,  ins:100000, park:360000, opex_mo:11737286},
+  {type:'Седельный тягач c тралом',        n:9,  opex_yr:67201054,  svc:5068088,  gps:72000,  ins:100000, park:360000, opex_mo:5600088},
+  {type:'Манипулятор с КМУ 6*6',           n:17, opex_yr:50664000,  svc:3626000,  gps:136000, ins:100000, park:360000, opex_mo:4222000},
+  {type:'Буровая установка ГНБ G200',      n:5,  opex_yr:64800000,  svc:4900000,  gps:40000,  ins:100000, park:360000, opex_mo:5400000},
+  {type:'Прицеп для перевозки ГНБ',        n:5,  opex_yr:26520000,  svc:1750000,  gps:0,      ins:100000, park:360000, opex_mo:2210000},
+  {type:'Экскаватор-погрузчик Hidromek',   n:22, opex_yr:50755500,  svc:3593625,  gps:176000, ins:100000, park:360000, opex_mo:4229625},
+  {type:'Жилой вагончик на 8 чел.',        n:14, opex_yr:10920000,  svc:450000,   gps:0,      ins:100000, park:360000, opex_mo:910000},
+  {type:'Хозяйственный вагончик',          n:5,  opex_yr:12120000,  svc:550000,   gps:0,      ins:100000, park:360000, opex_mo:1010000},
+  {type:'Траншеекопатель экск. Hidromek',  n:5,  opex_yr:6930000,   svc:577500,   gps:0,      ins:0,      park:0,      opex_mo:577500},
+  {type:'Дизельный генератор',             n:5,  opex_yr:4680000,   svc:350000,   gps:40000,  ins:0,      park:0,      opex_mo:390000},
+  {type:'Траншеекопатель DongFeng',        n:5,  opex_yr:24060000,  svc:1505000,  gps:40000,  ins:100000, park:360000, opex_mo:2005000},
+  {type:'Траншеекопатель XCMG XMT550',     n:2,  opex_yr:37162500,  svc:2620875,  gps:16000,  ins:100000, park:360000, opex_mo:3096875},
+  {type:'Пикап 4х4',                       n:54, opex_yr:37704000,  svc:1500000,  gps:432000, ins:850000, park:360000, opex_mo:3142000},
+];
+// Итого: opex_mo=44,530,374 тг/мес | opex_yr=534,364,492 тг/год
+const OPEX_MO_TOTAL = BUDGET.reduce((s,b)=>s+b.opex_mo, 0);
+const OPEX_YR_TOTAL = BUDGET.reduce((s,b)=>s+b.opex_yr, 0);
+const GSM_PLAN=67500000;
+
+const OPEX_CATS=[
+  {name:'Обслуживание', plan:BUDGET.reduce((s,b)=>s+b.svc,0),  col:'#388bfd'},
+  {name:'GPS',          plan:BUDGET.reduce((s,b)=>s+b.gps,0),  col:'#39c5cf'},
+  {name:'ОГПО/КАСКО',  plan:BUDGET.reduce((s,b)=>s+b.ins,0),  col:'#a371f7'},
+  {name:'Стоянка',      plan:BUDGET.reduce((s,b)=>s+b.park,0), col:'#8b949e'},
+];
+const ML=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+const OPEX_PLAN_M=ML.map(()=>Math.round(OPEX_MO_TOTAL/1e6*10)/10);
+const OPEX_FACT_M=[0,0,0,null,null,null,null,null,null,null,null,null];
+const GSM_PLAN_M=[67.5,67.5,67.5,67.5,67.5,67.5,67.5,67.5,67.5,67.5,67.5,67.5];
+const GSM_FACT_M=[0,0,0,40.85,0,null,null,null,null,null,null,null];
+const YEAR=2026;
+
+function getPeriodMonths(){
+  // Возвращает {fromMonth, toMonth, months (кол-во)}
+  return{fromM:periodFromMonth, toM:periodToMonth, count:periodToMonth-periodFromMonth+1};
+}
+
+// ── TID_MAP ──────────────────────────────────
+const TID_MAP={336068546:'531СТ01',336068858:'539СТ01',336070375:'729CW01',336070376:'899CW01',336070377:'897CW01',336070378:'822CW01',336070423:'785CV01',336070435:'721CW01',336070436:'882CW01',336070437:'781CV01',336070438:'763CV01',336071283:'267CY01',336071284:'284CY01',336071285:'235CY01',336071286:'286CY01',336071315:'713CY01',336071317:'271CY01',336071667:'231CZ01',336071668:'109CZ01',336071669:'812CZ01',336071670:'285CZ01',336071692:'132CZ01',336071693:'432CZ01',336071694:'913CZ01',336071756:'810CZ01',336071757:'052CZ01',336071803:'376CZ01',336071805:'411CZ01',336071806:'308CZ01',336072132:'254CY01',336072134:'256CY01',336072139:'801CY01',336072219:'291CY01',336072220:'273CY01',336072222:'253CY01',336072233:'484CY01',336072403:'901CZ01',336072404:'722CZ01',336072405:'991CZ01',336072437:'336CZ01',336072443:'280CZ01',336072444:'510CZ01',336072445:'036DA01',336072446:'784CV01',336072960:'338DB01',336072961:'533DB01',336072962:'217DB01',336072989:'582DC01',336073019:'382DC01',336073020:'562DC01',336073021:'832DC01',336073668:'527CY01',336073669:'246CY01',336073670:'257CY01',203007118:'AFE544Z',203009932:'AFE752Z',336071671:'AOD640Z',336071675:'AOD641Z',336071672:'APD377Z',336071673:'APD370Z',336071674:'APD374Z',336071677:'APD375Z',336073667:'APD376Z',336071695:'AOD566Z',336071696:'AOD565Z',336071699:'AOD704Z',336071725:'AOD562Z',336071726:'AOD563Z',336071753:'AOD710Z',336071787:'AGE669Z',336071788:'AGE712Z',336071789:'AGE650Z',336071790:'AGE714Z',336071792:'AOD708Z',336071793:'AOD709Z',336071794:'AOD703Z',336071795:'AGE649Z',336071796:'AOD706Z',336071797:'AOD707Z',336071798:'AOD705Z',336072114:'APD364Z',336072993:'AGE670Z',336073229:'AOD564Z',336072140:'551CY01',336072141:'522CY01',336072215:'578CY01',336072987:'092DE01',336072990:'095DE01',336073022:'091DE01',336074150:'334DC01',336074151:'335DC01',336074152:'377DC01',336074241:'093DE01',336074324:'094DE01',336074330:'178DG01',336074331:'175DG01',336074332:'182DG01',336074333:'898DF01',336074347:'179DG01',336074348:'176DG01',336072216:'316CR01',336072217:'643CX01',336072218:'642CX01',336074886:'142DC01',336074889:'152DC01',336074996:'154DC01',336075018:'127DC01',336075021:'062DC01',336075045:'153DC01',336072846:'AGE944Z',336072868:'AGE942Z',336072991:'AOD813Z',336072992:'AGE943Z',1198016959:'AHE360Z',1198004788:'AFE573Z',1198004809:'AFE572Z',1198005658:'APD306Z',1198006374:'APD305Z',1198007721:'APD308Z',1198007724:'APD307Z',1198017627:'Z589APD',1198018509:'Z436AKE',1198018627:'Z493AKE',1198019183:'Z476ALE',1198020163:'Z473ALE',1198020164:'Z482ALE'};
+
+// ── REGISTRY ─────────────────────────────────
+const REG=[{n:1,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'531СТ01',year:2023,fuel:'АИ-92',col:'light'},{n:2,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'539СТ01',year:2023,fuel:'АИ-92',col:'light'},{n:3,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'721CW01',year:2023,fuel:'АИ-92',col:'light'},{n:4,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'729CW01',year:2023,fuel:'АИ-92',col:'light'},{n:5,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'763CV01',year:2023,fuel:'АИ-92',col:'light'},{n:6,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'781CV01',year:2023,fuel:'АИ-92',col:'light'},{n:7,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'785CV01',year:2023,fuel:'АИ-92',col:'light'},{n:8,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'822CW01',year:2023,fuel:'АИ-92',col:'light'},{n:9,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'882CW01',year:2023,fuel:'АИ-92',col:'light'},{n:10,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'897CW01',year:2023,fuel:'АИ-92',col:'light'},{n:11,type:'Пикап',brand:'GREAT WALL',model:'KINGKONG POER',plate:'899CW01',year:2023,fuel:'АИ-92',col:'light'},{n:12,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'235CY01',year:2024,fuel:'АИ-92',col:'light'},{n:13,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'253CY01',year:2024,fuel:'АИ-92',col:'light'},{n:14,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'484CY01',year:2024,fuel:'АИ-92',col:'light'},{n:15,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'713CY01',year:2024,fuel:'АИ-92',col:'light'},{n:16,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'801CY01',year:2024,fuel:'АИ-92',col:'light'},{n:17,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'246CY01',year:2024,fuel:'АИ-92',col:'light'},{n:18,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'254CY01',year:2024,fuel:'АИ-92',col:'light'},{n:19,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'256CY01',year:2024,fuel:'АИ-92',col:'light'},{n:20,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'257CY01',year:2024,fuel:'АИ-92',col:'light'},{n:21,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'267CY01',year:2024,fuel:'АИ-92',col:'light'},{n:22,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'271CY01',year:2024,fuel:'АИ-92',col:'light'},{n:23,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'273CY01',year:2024,fuel:'АИ-92',col:'light'},{n:24,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'284CY01',year:2024,fuel:'АИ-92',col:'light'},{n:25,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'286CY01',year:2024,fuel:'АИ-92',col:'light'},{n:26,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'291CY01',year:2024,fuel:'АИ-92',col:'light'},{n:27,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'036DA01',year:2025,fuel:'АИ-92',col:'light'},{n:28,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'308CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:29,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'510CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:30,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'527CY01',year:2025,fuel:'АИ-92',col:'light'},{n:31,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'722CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:32,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'784CV01',year:2025,fuel:'АИ-92',col:'light'},{n:33,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'810CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:34,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'812CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:35,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'109CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:36,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'132CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:37,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'231CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:38,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'280CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:39,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'336CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:40,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'376CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:41,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'411CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:42,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'913CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:43,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'991CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:44,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'432CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:45,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'052CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:46,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'285CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:47,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'901CZ01',year:2025,fuel:'АИ-92',col:'light'},{n:48,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'533DB01',year:2025,fuel:'АИ-92',col:'light'},{n:49,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'217DB01',year:2025,fuel:'АИ-92',col:'light'},{n:50,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'338DB01',year:2025,fuel:'АИ-92',col:'light'},{n:51,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'382DC01',year:2025,fuel:'АИ-92',col:'light'},{n:52,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'562DC01',year:2025,fuel:'АИ-92',col:'light'},{n:53,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'582DC01',year:2025,fuel:'АИ-92',col:'light'},{n:54,type:'Пикап',brand:'CHANGAN',model:'HUNTER PLUS',plate:'832DC01',year:2025,fuel:'АИ-92',col:'light'},{n:55,type:'Седельный тягач',brand:'HOWO',model:'V7',plate:'642CX01',year:2024,fuel:'ДТ',col:'heavy'},{n:56,type:'Седельный тягач',brand:'HOWO',model:'V7',plate:'643CX01',year:2024,fuel:'ДТ',col:'heavy'},{n:57,type:'Седельный тягач',brand:'HOWO',model:'V7',plate:'316CR01',year:2024,fuel:'ДТ',col:'heavy'},{n:58,type:'Седельный тягач',brand:'HOWO',model:'MAX',plate:'062DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:59,type:'Седельный тягач',brand:'HOWO',model:'MAX',plate:'127DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:60,type:'Седельный тягач',brand:'HOWO',model:'MAX',plate:'142DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:61,type:'Седельный тягач',brand:'HOWO',model:'MAX',plate:'152DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:62,type:'Седельный тягач',brand:'HOWO',model:'MAX',plate:'153DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:63,type:'Седельный тягач',brand:'HOWO',model:'MAX',plate:'154DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:64,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'522CY01',year:2024,fuel:'ДТ',col:'heavy'},{n:65,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'551CY01',year:2024,fuel:'ДТ',col:'heavy'},{n:66,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'578CY01',year:2024,fuel:'ДТ',col:'heavy'},{n:67,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'377DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:68,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'334DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:69,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'335DC01',year:2025,fuel:'ДТ',col:'heavy'},{n:70,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'091DE01',year:2025,fuel:'ДТ',col:'heavy'},{n:71,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'092DE01',year:2025,fuel:'ДТ',col:'heavy'},{n:72,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'093DE01',year:2025,fuel:'ДТ',col:'heavy'},{n:73,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'094DE01',year:2025,fuel:'ДТ',col:'heavy'},{n:74,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'095DE01',year:2025,fuel:'ДТ',col:'heavy'},{n:75,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'175DG01',year:2025,fuel:'ДТ',col:'heavy'},{n:76,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'176DG01',year:2025,fuel:'ДТ',col:'heavy'},{n:77,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'178DG01',year:2025,fuel:'ДТ',col:'heavy'},{n:78,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'179DG01',year:2025,fuel:'ДТ',col:'heavy'},{n:79,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'182DG01',year:2025,fuel:'ДТ',col:'heavy'},{n:80,type:'Манипулятор КМУ',brand:'DongFeng',model:'EQ3250GLV',plate:'898DF01',year:2025,fuel:'ДТ',col:'heavy'},{n:81,type:'Бульдозер',brand:'Shantui',model:'SD32 Rops',plate:'AFE572Z',year:2024,fuel:'ДТ',col:'heavy'},{n:82,type:'Бульдозер',brand:'Shantui',model:'SD32 Rops',plate:'AFE573Z',year:2024,fuel:'ДТ',col:'heavy'},{n:83,type:'Бульдозер',brand:'Shantui',model:'SD32 Rops',plate:'APD308Z',year:2024,fuel:'ДТ',col:'heavy'},{n:84,type:'Бульдозер',brand:'Shantui',model:'SD32 Rops',plate:'APD306Z',year:2024,fuel:'ДТ',col:'heavy'},{n:85,type:'Бульдозер',brand:'Shantui',model:'SD32 Rops',plate:'APD307Z',year:2024,fuel:'ДТ',col:'heavy'},{n:86,type:'Бульдозер',brand:'Shantui',model:'SD32 Rops',plate:'APD305Z',year:2024,fuel:'ДТ',col:'heavy'},{n:87,type:'Бульдозер',brand:'Shantui',model:'SD34-B3 XL',plate:'Z589APD',year:2025,fuel:'ДТ',col:'heavy'},{n:88,type:'Бульдозер',brand:'Shantui',model:'SD34-B3 XL',plate:'Z436AKE',year:2025,fuel:'ДТ',col:'heavy'},{n:89,type:'Бульдозер',brand:'Shantui',model:'SD34-B3 XL',plate:'Z493AKE',year:2025,fuel:'ДТ',col:'heavy'},{n:90,type:'Бульдозер',brand:'Shantui',model:'SD34-B3 XL',plate:'Z476ALE',year:2025,fuel:'ДТ',col:'heavy'},{n:91,type:'Бульдозер',brand:'Shantui',model:'SD34-B3 XL',plate:'Z473ALE',year:2025,fuel:'ДТ',col:'heavy'},{n:92,type:'Бульдозер',brand:'Shantui',model:'SD34-B3 XL',plate:'Z482ALE',year:2025,fuel:'ДТ',col:'heavy'},{n:93,type:'Трактор-траншеекопатель',brand:'DongFeng',model:'DF904',plate:'APD370Z',year:2025,fuel:'ДТ',col:'heavy'},{n:94,type:'Трактор-траншеекопатель',brand:'DongFeng',model:'DF905',plate:'APD377Z',year:2025,fuel:'ДТ',col:'heavy'},{n:95,type:'Трактор-траншеекопатель',brand:'DongFeng',model:'DF906',plate:'APD376Z',year:2025,fuel:'ДТ',col:'heavy'},{n:96,type:'Трактор-траншеекопатель',brand:'DongFeng',model:'DF907',plate:'APD375Z',year:2025,fuel:'ДТ',col:'heavy'},{n:97,type:'Трактор-траншеекопатель',brand:'DongFeng',model:'DF908',plate:'APD374Z',year:2025,fuel:'ДТ',col:'heavy'},{n:98,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'102 B',plate:'AFE752Z',year:2024,fuel:'ДТ',col:'heavy'},{n:99,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'103 B',plate:'AFE544Z',year:2024,fuel:'ДТ',col:'heavy'},{n:100,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'104 B',plate:'APD364Z',year:2024,fuel:'ДТ',col:'heavy'},{n:101,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'105 B',plate:'AOD562Z',year:2024,fuel:'ДТ',col:'heavy'},{n:102,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'106 B',plate:'AOD563Z',year:2025,fuel:'ДТ',col:'heavy'},{n:103,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'107 B',plate:'AOD564Z',year:2025,fuel:'ДТ',col:'heavy'},{n:104,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'108 B',plate:'AOD565Z',year:2025,fuel:'ДТ',col:'heavy'},{n:105,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'109 B',plate:'AOD566Z',year:2025,fuel:'ДТ',col:'heavy'},{n:106,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'110 B',plate:'AOD707Z',year:2025,fuel:'ДТ',col:'heavy'},{n:107,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'111 B',plate:'AOD706Z',year:2025,fuel:'ДТ',col:'heavy'},{n:108,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'112 B',plate:'AOD705Z',year:2025,fuel:'ДТ',col:'heavy'},{n:109,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'113 B',plate:'AOD704Z',year:2025,fuel:'ДТ',col:'heavy'},{n:110,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'114 B',plate:'AOD703Z',year:2025,fuel:'ДТ',col:'heavy'},{n:111,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'115 B',plate:'AOD710Z',year:2025,fuel:'ДТ',col:'heavy'},{n:112,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'116 B',plate:'AOD709Z',year:2025,fuel:'ДТ',col:'heavy'},{n:113,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'117 B',plate:'AOD708Z',year:2025,fuel:'ДТ',col:'heavy'},{n:114,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'118 B',plate:'AGE649Z',year:2025,fuel:'ДТ',col:'heavy'},{n:115,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'119 B',plate:'AGE650Z',year:2025,fuel:'ДТ',col:'heavy'},{n:116,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'120 B',plate:'AGE669Z',year:2025,fuel:'ДТ',col:'heavy'},{n:117,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'121 B',plate:'AGE670Z',year:2025,fuel:'ДТ',col:'heavy'},{n:118,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'122 B',plate:'AGE714Z',year:2025,fuel:'ДТ',col:'heavy'},{n:119,type:'Экскаватор-погрузчик',brand:'Hidromek',model:'123 B',plate:'AGE712Z',year:2025,fuel:'ДТ',col:'heavy'},{n:120,type:'Установка ГНБ',brand:'Goodeng',model:'GD200LS',plate:'AOD813Z',year:2025,fuel:'ДТ',col:'heavy'},{n:121,type:'Установка ГНБ',brand:'Goodeng',model:'GD200LS',plate:'AGE944Z',year:2025,fuel:'ДТ',col:'heavy'},{n:122,type:'Установка ГНБ',brand:'Goodeng',model:'GD200LS',plate:'AGE942Z',year:2025,fuel:'ДТ',col:'heavy'},{n:123,type:'Установка ГНБ',brand:'Goodeng',model:'GD200LS',plate:'AGE943Z',year:2025,fuel:'ДТ',col:'heavy'},{n:124,type:'Установка ГНБ',brand:'Goodeng',model:'GD200LS',plate:'AHE360Z',year:2025,fuel:'ДТ',col:'heavy'},{n:125,type:'Траншеекопатель',brand:'XCMG',model:'XMT550',plate:'AOD640Z',year:2025,fuel:'ДТ',col:'heavy'},{n:126,type:'Траншеекопатель',brand:'XCMG',model:'XMT550',plate:'AOD641Z',year:2025,fuel:'ДТ',col:'heavy'}];
+
+// ── EXPENSES ─────────────────────────────────
+let expenses=[
+  {id:'e0',date:'2026-04-22',type:'Сервисное обслуживание',contr:'ТОО Инженерная служба Авто Тех',amt:1675073,desc:'Жидкость для систем 75 шт, Антифриз',plates:[]},
+  {id:'e1',date:'2026-04-28',type:'Сервисное обслуживание',contr:'ТОО Инженерная служба Авто Тех',amt:1100000,desc:'Жидкость для систем 50 шт',plates:[]},
+  {id:'e2',date:'2026-04-24',type:'Расходники/оборудование',contr:'ТОО QAZPOLYMER GROUP',amt:3131034,desc:'Мини АЗС, ёмкость, кран, Фитинг',plates:[]},
+  {id:'e3',date:'2026-04-28',type:'Расходники/оборудование',contr:'ТОО TechEX',amt:160000,desc:'Аккумуляторные батарейки для ГНБ',plates:[]},
+  {id:'e4',date:'2026-04-29',type:'ГСМ',contr:'ТОО PetroRetail',amt:4085370,desc:'АИ-92 + ДТ, счёт KZ454748',plates:[]},
+  {id:'e5',date:'2026-05-04',type:'Техническое обслуживание',contr:'ТОО MyCar Aktau',amt:123035,desc:'ТО пикап',plates:['901CZ01']},
+  {id:'e6',date:'2026-05-04',type:'Техническое обслуживание',contr:'ТОО MyCar Aktau',amt:128735,desc:'ТО пикап',plates:['510CZ01']},
+  {id:'e7',date:'2026-05-05',type:'Сервисное обслуживание',contr:'ТОО Инженерная служба Авто Тех',amt:1100000,desc:'Жидкость для систем 50 шт',plates:[]},
+  {id:'e8',date:'2026-05-12',type:'Расходники/оборудование',contr:'ИП Volt-Tas',amt:370370,desc:'Кабель КГ',plates:[]},
+  {id:'e9',date:'2026-05-13',type:'Расходники/оборудование',contr:'ИП Voltman Trade',amt:282000,desc:'АКБ',plates:[]},
+  {id:'e10',date:'2026-05-12',type:'Расходники/оборудование',contr:'ИП ШИНЫБАЕВ',amt:170000,desc:'Шины 20 шт',plates:[]},
+  {id:'e11',date:'2026-04-27',type:'Расходники/оборудование',contr:'TOO RoZa-Company',amt:1868632,desc:'Расходники/оборудование',plates:[]},
+]; // базовые данные — перезаписываются из Google Sheets
+let gsmInvoices=[
+  {id:'g1',date:'2026-04-29',bill:'KZ454748',supp:'PetroRetail ТОО',type:'ДТ',   liters:11070,ppl:323,amt:3575610},
+  {id:'g2',date:'2026-04-29',bill:'KZ454748',supp:'PetroRetail ТОО',type:'АИ-92',liters:2160, ppl:236,amt:509760},
 ];
 
-// Факт затрат из expenses (апрель-май 2026)
-const FACT_OPEX = {
-  'Кабелеукладчик Shantui':   0,
-  'Седельный тягач c тралом': 0,
-  'Манипулятор с КМУ 6*6':    3875000,   // сервис на манипуляторы
-  'Буровая установка ГНБ':    0,
-  'Прицеп для ГНБ':           0,
-  'Экскаватор-погрузчик':     0,
-  'Жилой вагончик':           0,
-  'Хозяйственный вагончик':   0,
-  'Траншеекопатель Hidromek': 0,
-  'Дизельный генератор':      0,
-  'Траншеекопатель DongFeng': 0,
-  'Траншеекопатель XCMG':     0,
-  'Пикап 4х4':                2761770,  // ТО + АИ-92
-};
-
-// OPEX по месяцам (план vs факт)
-const MONTHS_DATA = {
-  labels: ['Янв','Фев','Мар','Апр','Май'],
-  plan:   [271028754, 271028754, 271028754, 271028754, 271028754],
-  fact:   [0, 0, 0, 11393623, 6637610],
-};
-
-// VEHICLE REGISTRY
-const VEHICLES = [{"plate":"531СТ01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"539СТ01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"721CW01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"729CW01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"763CV01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"781CV01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"785CV01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"822CW01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"882CW01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"897CW01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"899CW01","model":"GREAT WALL пикап","year":"2023","column":"light","vtype":"Пикап"},{"plate":"642CX01","model":"Тягач HOWO V7","year":"2024","column":"heavy","vtype":"Тягач"},{"plate":"643CX01","model":"Тягач HOWO V7","year":"2024","column":"heavy","vtype":"Тягач"},{"plate":"92AFT01","model":"Трал XINHONDDONG","year":"2024","column":"heavy","vtype":"Трал"},{"plate":"59AFT01","model":"Трал XINHONDDONG","year":"2024","column":"heavy","vtype":"Трал"},{"plate":"316CR01","model":"Тягач HOWO V7","year":"2024","column":"heavy","vtype":"Тягач"},{"plate":"62AAQ01","model":"Трал XINHONDDONG","year":"2024","column":"heavy","vtype":"Трал"},{"plate":"AFE544Z","model":"Погрузчик Hidromek 102B","year":"2024","column":"heavy","vtype":"Погрузчик"},{"plate":"522CY01","model":"Манипулятор DongFeng 6*6","year":"2024","column":"heavy","vtype":"Манипулятор"},{"plate":"AFE572Z","model":"Бульдозер Shantui SD32","year":"2024","column":"heavy","vtype":"Бульдозер"},{"plate":"AFE573Z","model":"Бульдозер Shantui SD32","year":"2024","column":"heavy","vtype":"Бульдозер"},{"plate":"AFE752Z","model":"Погрузчик Hidromek 102B","year":"2024","column":"heavy","vtype":"Погрузчик"},{"plate":"551CY01","model":"Манипулятор DongFeng 6*6","year":"2024","column":"heavy","vtype":"Манипулятор"},{"plate":"578CY01","model":"Манипулятор DongFeng 6*6","year":"2024","column":"heavy","vtype":"Манипулятор"},{"plate":"235CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"253CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"484CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"713CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"801CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"246CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"254CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"256CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"257CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"267CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"271CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"273CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"284CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"286CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"291CY01","model":"CHANGAN HUNTER PLUS","year":"2024","column":"light","vtype":"Пикап"},{"plate":"APD308Z","model":"Бульдозер Shantui SD32","year":"2024","column":"heavy","vtype":"Бульдозер"},{"plate":"APD306Z","model":"Бульдозер Shantui SD32","year":"2024","column":"heavy","vtype":"Бульдозер"},{"plate":"APD307Z","model":"Бульдозер Shantui SD32","year":"2024","column":"heavy","vtype":"Бульдозер"},{"plate":"APD305Z","model":"Бульдозер Shantui SD32","year":"2024","column":"heavy","vtype":"Бульдозер"},{"plate":"APD364Z","model":"Погрузчик Hidromek 102B","year":"2024","column":"heavy","vtype":"Погрузчик"},{"plate":"APD370Z","model":"DongFeng DF904","year":"2025","column":"heavy","vtype":"Трактор"},{"plate":"APD377Z","model":"DongFeng DF904","year":"2025","column":"heavy","vtype":"Трактор"},{"plate":"APD376Z","model":"DongFeng DF904","year":"2025","column":"heavy","vtype":"Трактор"},{"plate":"APD375Z","model":"DongFeng DF904","year":"2025","column":"heavy","vtype":"Трактор"},{"plate":"APD374Z","model":"DongFeng DF904","year":"2025","column":"heavy","vtype":"Трактор"},{"plate":"036DA01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"308CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"510CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"527CY01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"722CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"784CV01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"810CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"812CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"109CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"132CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"231CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"280CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"336CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"376CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"411CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"913CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"991CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"432CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"052CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"285CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"901CZ01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"AOD562Z","model":"Погрузчик Hidromek 102B","year":"2024","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD563Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD564Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD565Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD566Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD640Z","model":"Траншеекопатель XCMG","year":"2025","column":"heavy","vtype":"Прочее"},{"plate":"AOD641Z","model":"Траншеекопатель XCMG","year":"2025","column":"heavy","vtype":"Прочее"},{"plate":"AOD707Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD706Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD705Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD704Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD703Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD710Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD709Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AOD708Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AGE649Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AGE650Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AGE669Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AGE670Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AGE714Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"AGE712Z","model":"Погрузчик Hidromek 102B","year":"2025","column":"heavy","vtype":"Погрузчик"},{"plate":"533DB01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"217DB01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"338DB01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"AOD813Z","model":"Установка ГНБ GD200LS","year":"2025","column":"heavy","vtype":"ГНБ"},{"plate":"AGE944Z","model":"Установка ГНБ GD200LS","year":"2025","column":"heavy","vtype":"ГНБ"},{"plate":"AGE942Z","model":"Установка ГНБ GD200LS","year":"2025","column":"heavy","vtype":"ГНБ"},{"plate":"AGE943Z","model":"Установка ГНБ GD200LS","year":"2025","column":"heavy","vtype":"ГНБ"},{"plate":"377DC01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"334DC01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"335DC01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"AHE360Z","model":"Установка ГНБ GD200LS","year":"2025","column":"heavy","vtype":"ГНБ"},{"plate":"382DC01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"562DC01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"582DC01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"832DC01","model":"CHANGAN HUNTER PLUS","year":"2025","column":"light","vtype":"Пикап"},{"plate":"091DE01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"092DE01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"093DE01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"094DE01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"095DE01","model":"Манипулятор DongFeng 6*6","year":"2025","column":"heavy","vtype":"Манипулятор"},{"plate":"AHDZ440","model":"ALATAU-31 вагон","year":"2024","column":"heavy","vtype":"Вагон"},{"plate":"AHDZ441","model":"ALATAU-31 вагон","year":"2024","column":"heavy","vtype":"Вагон"},{"plate":"AHDZ442","model":"ALATAU-31 вагон","year":"2024","column":"heavy","vtype":"Вагон"},{"plate":"AHDZ439","model":"ALATAU-31 вагон","year":"2024","column":"heavy","vtype":"Вагон"},{"plate":"AHDZ437","model":"ALATAU-31 вагон","year":"2024","column":"heavy","vtype":"Вагон"},{"plate":"AHDZ438","model":"ALATAU-31 вагон","year":"2024","column":"heavy","vtype":"Вагон"},{"plate":"37AFU01","model":"Прицеп","year":"2024","column":"heavy","vtype":"Прочее"},{"plate":"57AFT01","model":"ОСА 3028S1","year":"2025","column":"heavy","vtype":"Прочее"},{"plate":"062DC01","model":"Тягач HOWO MAX","year":"2025","column":"heavy","vtype":"Тягач"},{"plate":"127DC01","model":"Тягач HOWO MAX","year":"2025","column":"heavy","vtype":"Тягач"},{"plate":"142DC01","model":"Тягач HOWO MAX","year":"2025","column":"heavy","vtype":"Тягач"},{"plate":"152DC01","model":"Тягач HOWO MAX","year":"2025","column":"heavy","vtype":"Тягач"},{"plate":"153DC01","model":"Тягач HOWO MAX","year":"2025","column":"heavy","vtype":"Тягач"},{"plate":"154DC01","model":"Тягач HOWO MAX","year":"2025","column":"heavy","vtype":"Тягач"},{"plate":"21AGW01","model":"Трал FU JIANG","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"54AGW01","model":"Трал FU JIANG","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"61AGW01","model":"Трал FU JIANG","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"68AGW01","model":"Трал FU JIANG","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"75AGW01","model":"Трал FU JIANG","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"85AGW01","model":"Трал FU JIANG","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"Z589APD","model":"Бульдозер Shantui SD34","year":"2025","column":"heavy","vtype":"Бульдозер"},{"plate":"AHD524Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD527Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD525Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AKD003Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AKD001Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AKD004Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD519Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD526Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AKD002Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD521Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD520Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD522Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"AHD523Z","model":"ALATAU-11 вагон","year":"2023","column":"heavy","vtype":"Вагон"},{"plate":"60AGW01","model":"Прицеп ГНБ","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"64AAP01","model":"Прицеп ГНБ","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"76ACE01","model":"Прицеп ГНБ","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"93ACE01","model":"Прицеп ГНБ","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"98ACE01","model":"Прицеп ГНБ","year":"2025","column":"heavy","vtype":"Трал"},{"plate":"175DG01","model":"DONGFENG EQ3250GLV","year":"2025","column":"heavy","vtype":"Самосвал"},{"plate":"176DG01","model":"DONGFENG EQ3250GLV","year":"2025","column":"heavy","vtype":"Самосвал"},{"plate":"178DG01","model":"DONGFENG EQ3250GLV","year":"2025","column":"heavy","vtype":"Самосвал"},{"plate":"179DG01","model":"DONGFENG EQ3250GLV","year":"2025","column":"heavy","vtype":"Самосвал"},{"plate":"182DG01","model":"DONGFENG EQ3250GLV","year":"2025","column":"heavy","vtype":"Самосвал"},{"plate":"898DF01","model":"DONGFENG EQ3250GLV","year":"2025","column":"heavy","vtype":"Самосвал"},{"plate":"Z436AKE","model":"Бульдозер Shantui SD34","year":"2025","column":"heavy","vtype":"Бульдозер"},{"plate":"Z493AKE","model":"Бульдозер Shantui SD34","year":"2025","column":"heavy","vtype":"Бульдозер"},{"plate":"Z476ALE","model":"Бульдозер Shantui SD34","year":"2025","column":"heavy","vtype":"Бульдозер"},{"plate":"Z473ALE","model":"Бульдозер Shantui SD34","year":"2025","column":"heavy","vtype":"Бульдозер"},{"plate":"Z482ALE","model":"Бульдозер Shantui SD34","year":"2025","column":"heavy","vtype":"Бульдозер"}];
-
-// STATE
-let jwt = null;
-let omniVehicles = [];
-let fleetPgIdx = 0;
-let charts = {};
-
-// HELPERS
-const fmt  = n => n==null?'—':Math.round(n).toLocaleString('ru-RU')+' тг';
-const fmtM = n => (n/1000000).toFixed(1)+' млн';
-const fmtN = n => n==null?'—':Math.round(n).toLocaleString('ru-RU');
-const fd   = d => { if(!d)return'—'; const[y,m,dd]=d.split('-'); return`${dd}.${m}.${y}`; };
-
-function vtIcon(vt){
-  return {'Пикап':'ti-car','Погрузчик':'ti-backhoe','Манипулятор':'ti-crane','Бульдозер':'ti-bulldozer','Тягач':'ti-truck','Трактор':'ti-tractor','ГНБ':'ti-drill','Трал':'ti-trailer','Вагон':'ti-home','Самосвал':'ti-dump-truck','Прочее':'ti-tool'}[vt]||'ti-car';
+// ── STATE ────────────────────────────────────
+// ── CACHE ────────────────────────────────────
+const CACHE_TTL = 5 * 60 * 1000; // 5 минут
+function cacheSet(key, data){
+  try{
+    localStorage.setItem('apark_'+key, JSON.stringify({t:Date.now(),d:data}));
+  }catch(e){}
 }
-function vtColor(vt){
-  return {'Пикап':'#388bfd','Погрузчик':'#d29922','Манипулятор':'#56d364','Бульдозер':'#f85149','Тягач':'#a371f7','Трактор':'#3fb950','ГНБ':'#39c5cf','Трал':'#8b949e','Вагон':'#e3b341','Самосвал':'#ff7b72','Прочее':'#8b949e'}[vt]||'#8b949e';
+function cacheGet(key){
+  try{
+    const raw=localStorage.getItem('apark_'+key);
+    if(!raw) return null;
+    const {t,d}=JSON.parse(raw);
+    if(Date.now()-t > CACHE_TTL) return null;
+    return d;
+  }catch(e){return null;}
 }
-function setConn(ok, msg){
-  const cls = ok===true?'s-online':ok===false?'s-err':'s-load';
-  document.getElementById('conn-st').innerHTML=`<span class="status-dot ${cls}"></span><span style="font-size:11px;color:var(--text3)">${msg}</span>`;
+function cacheClear(){
+  try{
+    Object.keys(localStorage).filter(k=>k.startsWith('apark_')).forEach(k=>localStorage.removeItem(k));
+  }catch(e){}
 }
-function showErr(msg){ document.getElementById('errTxt').textContent=msg; document.getElementById('errBar').classList.add('on'); }
-function hideErr(){ document.getElementById('errBar').classList.remove('on'); }
 
-// ══════════════════════════════════════════════
-//  OMNICOMM API — New endpoint from developers.omnicomm.ru
-// ══════════════════════════════════════════════
-async function apiReq(method, path, body=null){
+let jwt=null,gpsMap={},periodData={},gsmData={};
+let period='month',fleetPeriod='today';
+let periodFromMonth=new Date().getMonth(),periodToMonth=new Date().getMonth();
+// General period (expenses, gsm)
+let genPeriod='month';
+let genFrom=null,genTo=null; // for custom calendar
+let flPgIdx=0,flFiltered=[],gsmPgIdx=0,gsmFiltered=[];
+let charts={},pinAction=null;
+
+// ── HELPERS ──────────────────────────────────
+const $=id=>document.getElementById(id);
+const fmtN=n=>n==null?'—':Math.round(n).toLocaleString('ru-RU');
+const fmt =n=>fmtN(n)+' тг';
+const fmtM=n=>(n/1e6).toFixed(1)+' млн';
+const fmtL=n=>n==null?'—':Math.round(n*10)/10+' л';
+const fd  =d=>{if(!d)return'—';const[y,m,dd]=d.split('-');return`${dd}.${m}.${y}`};
+const fmtAgo=ts=>{if(!ts)return'—';const m=Math.floor((Date.now()/1000-ts)/60);if(m<1)return'сейчас';if(m<60)return m+'мин';if(m<1440)return Math.floor(m/60)+'ч';return Math.floor(m/1440)+'д'};
+
+function getPD(){
+  // Период задаётся через periodFromMonth / periodToMonth (0–11)
+  const from=new Date(YEAR, periodFromMonth, 1);
+  const to  =new Date(YEAR, periodToMonth+1, 0, 23, 59, 59);
+  return{from,to,fromTs:Math.floor(from/1000),toTs:Math.floor(to/1000),
+         fromM:periodFromMonth, toM:periodToMonth, count:periodToMonth-periodFromMonth+1};
+}
+// General period dates (for expenses and GSM)
+function getGenPD(){
+  const now=new Date();
+  let from,to=new Date(now.getFullYear(),now.getMonth(),now.getDate(),23,59,59);
+  if(genPeriod==='today'){
+    from=new Date(now.getFullYear(),now.getMonth(),now.getDate());
+  } else if(genPeriod==='week'){
+    from=new Date(now);from.setDate(now.getDate()-6);from.setHours(0,0,0,0);
+  } else if(genPeriod==='year'){
+    from=new Date(now.getFullYear(),0,1);
+    to  =new Date(now.getFullYear(),11,31,23,59,59);
+  } else if(genPeriod==='custom'&&genFrom&&genTo){
+    from=new Date(genFrom);to=new Date(genTo+'T23:59:59');
+  } else {
+    // month (default)
+    from=new Date(now.getFullYear(),now.getMonth(),1);
+    to  =new Date(now.getFullYear(),now.getMonth()+1,0,23,59,59);
+  }
+  return{from,to,fromTs:Math.floor(from/1000),toTs:Math.floor(to/1000)};
+}
+function setGenPeriod(p,btn){
+  genPeriod=p;
+  document.querySelectorAll('#pbar-general .pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cdr=$('gpdr');if(cdr)cdr.className='dr'+(p==='custom'?' show':'');
+  updateGenPbarInfo();
+  const pg=['budget','expenses','gsm','fleet'].find(p=>$('page-'+p)?.style.display!=='none');
+  if(pg==='expenses')renderExp();
+  if(pg==='gsm'){const{fromTs,toTs}=getGenPD();gsmData={};loadGsmData(fromTs,toTs);}
+}
+function applyGenPeriod(){
+  genFrom=$('gpdr-from').value;
+  genTo  =$('gpdr-to').value;
+  if(genFrom&&genTo) setGenPeriod('custom',document.getElementById('gp-custom'));
+}
+function updateGenPbarInfo(){
+  const{from,to}=getGenPD();
+  const fmt=d=>d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  const el=$('gpbar-info');
+  if(el)el.textContent=genPeriod==='today'?'Сегодня':genPeriod==='week'?'7 дней':`${fmt(from)} — ${fmt(to)}`;
+}
+
+function getFD(){
+  const now=new Date();let from=new Date(now.getFullYear(),now.getMonth(),1),to=new Date();
+  if(fleetPeriod==='today'){from=new Date(now.getFullYear(),now.getMonth(),now.getDate());}
+  else if(fleetPeriod==='week'){from=new Date(now);from.setDate(now.getDate()-7);from.setHours(0,0,0,0);}
+  else if(fleetPeriod==='custom'){const f=$('fdr-from').value,t=$('fdr-to').value;from=f?new Date(f):from;to=t?new Date(t+'T23:59:59'):to;}
+  return{fromTs:Math.floor(from/1000),toTs:Math.floor(to/1000)};
+}
+function filtExp(){
+  const{from,to}=getGenPD();
+  return expenses.filter(e=>{const d=new Date(e.date);return d>=from&&d<=to;});
+}
+function setConn(ok,msg){$('sdot').className='sdot '+(ok===true?'s-ok':ok===false?'s-err':'s-load');$('conn-txt').textContent=msg;}
+function getCS(v){const g=gpsMap[v.plate];if(!g||!g.eventDate)return'offline';return(Date.now()/1000-g.eventDate)<=48*3600?'online':'offline';}
+function getMS(v){const g=gpsMap[v.plate];if(!g||getCS(v)==='offline')return null;if((Date.now()/1000-g.eventDate)>3600)return'parked';if(g.speed>2)return'moving';if(g.ign)return'idle';return'parked';}
+function cBadge(st){return st==='online'?'<span class="badge b-green">● В сети</span>':'<span class="badge b-red">Не в сети</span>';}
+function mBadge(st){if(!st)return'—';return{moving:'<span class="badge b-blue">Едет</span>',idle:'<span class="badge b-amber">Холостой</span>',parked:'<span class="badge b-gray">Стоянка</span>'}[st]||'—';}
+
+// ── API ──────────────────────────────────────
+async function apiR(method,path,body=null){
   const h={'Content-Type':'application/json'};
-  if(jwt) h['Authorization']='JWT '+jwt;
-  const opts={method,headers:h};
-  if(body) opts.body=JSON.stringify(body);
-  const r=await fetch(API_BASE+path,opts);
-  const text=await r.text();
-  try{ return{code:r.status,data:JSON.parse(text)}; }
-  catch{ return{code:r.status,data:text}; }
+  if(jwt)h['Authorization']='JWT '+jwt;
+  const r=await fetch(API+path,{method,headers:h,body:body?JSON.stringify(body):null});
+  const t=await r.text();try{return{code:r.status,data:JSON.parse(t)};}catch{return{code:r.status,data:t};}
 }
-
 async function doAuth(){
-  document.getElementById('ov-msg').textContent='Авторизация Omnicomm...';
-  setConn(null,'Подключение...');
-  const {code,data}=await apiReq('POST','/auth/login?jwt=1',{login:LOGIN,password:PASSWORD});
-  if(code===200&&data.jwt){ jwt=data.jwt; setConn(true,'Omnicomm Online'); return true; }
-  setConn(false,'Ошибка авторизации');
-  return false;
+  $('ov-msg').textContent='Авторизация Omnicomm...';setConn(null,'Подключение...');
+  const{code,data}=await apiR('POST','/auth/login?jwt=1',{login:LOGIN,password:PASS});
+  if(code===200&&data.jwt){jwt=data.jwt;return true;}
+  setConn(false,'Ошибка авторизации');return false;
 }
-
-async function loadVehicles(){
-  document.getElementById('ov-msg').textContent='Загрузка списка ТС...';
-  const {code,data}=await apiReq('GET','/vehicles?action=getAllVehicles');
-  if(code===200&&Array.isArray(data)){
-    omniVehicles=data;
-    document.getElementById('m-total').textContent=VEHICLES.length;
+async function loadGPS(){
+  // Check cache first
+  const cached=cacheGet('gps');
+  if(cached&&Object.keys(cached).length>10){
+    gpsMap=cached;
+    console.log('GPS from cache:', Object.keys(gpsMap).length);
+    return;
   }
-}
-
-// Try new Reports API endpoint
-async function tryNewApi(){
-  document.getElementById('ov-msg').textContent='Пробуем новый Reports API...';
-  // Try /ls/api/v1 endpoints from developers.omnicomm.ru
-  const endpoints=[
-    {method:'GET', path:'/ls/api/v1/vehicles'},
-    {method:'GET', path:'/ls/api/v1/monitoring/objects'},
-    {method:'POST',path:'/ls/api/v1/reports/failures', body:{vehicleIds:omniVehicles.slice(0,5).map(v=>v.id)}},
-    {method:'GET', path:'/ls/api/v1/reports'},
-    {method:'GET', path:'/ls/api/v1/vehicles/list'},
-  ];
-  const results=[];
-  for(const ep of endpoints){
-    try{
-      const {code,data}=await apiReq(ep.method,ep.path,ep.body||null);
-      results.push({path:ep.path,code,preview:JSON.stringify(data).substring(0,80)});
-      console.log(`${ep.method} ${ep.path} → ${code}`,data);
-      if(code===200) return {path:ep.path,data};
-    }catch(e){ results.push({path:ep.path,code:0,preview:e.message}); }
+  const tids=Object.keys(TID_MAP).map(Number);
+  const{code,data}=await apiR('POST','/ls/api/v1/reports/currentState',{ids:tids});
+  if(code!==200)return;
+  const arr=Array.isArray(data)?data:(data.data||[]);
+  const t2p={};Object.entries(TID_MAP).forEach(([t,p])=>{t2p[Number(t)]=p;});
+  gpsMap={};
+  arr.forEach((item,i)=>{const p=t2p[tids[i]];if(p)gpsMap[p]={speed:item.speed,fuel1:item.currentFuelVolumeTank1,fuel2:item.currentFuelVolumeTank2,ign:item.currentIgn,eventDate:item.eventDate,lat:item.latitude,lon:item.longitude};});
+  if(Object.keys(gpsMap).length<10){
+    gpsMap={};arr.forEach(item=>{
+      const rn=(item.regNumb||'').replace(/[-\s]/g,'').toUpperCase();
+      Object.entries(TID_MAP).forEach(([,p])=>{const pc=p.replace(/[-\s]/g,'').toUpperCase();if(rn.includes(pc)||pc.includes(rn.slice(-6)))gpsMap[p]={speed:item.speed,fuel1:item.currentFuelVolumeTank1,fuel2:item.currentFuelVolumeTank2,ign:item.currentIgn,eventDate:item.eventDate,lat:item.latitude,lon:item.longitude};});
+    });
   }
-  console.log('New API results:',results);
-  return null;
+
+  if(Object.keys(gpsMap).length>10) cacheSet('gps',gpsMap);
+}
+async function loadFleetStats(fromTs,toTs){
+  const ODO_START = Math.floor(new Date(2020,0,1)/1000);
+  const NOW_TS = Math.floor(Date.now()/1000);
+
+  const tids=Object.keys(TID_MAP).map(Number);
+  const t2p={};Object.entries(TID_MAP).forEach(([t,p])=>{t2p[Number(t)]=p;});
+  periodData={};const B=15;const isT=(fleetPeriod==='today'); // batch=15
+
+  showLoader('fleet','Получение данных GPS и одометра...');
+  for(let i=0;i<tids.length;i+=B){
+    const pct=Math.round(i/tids.length*90);
+    setLoaderProgress('fleet',pct,`${Math.min(i+B,tids.length)} / ${tids.length} машин`);
+    setLoaderMsg('fleet',`Загрузка одометра и ГСМ...`);
+    const chunk=tids.slice(i,i+B);
+    await Promise.all(chunk.map(async tid=>{
+      const plate=t2p[tid];if(!plate)return;
+      try{
+        // Одиночный запрос: одометр от 2020 + расход за период (одновременно)
+        const [odoRes, fuelRes] = await Promise.all([
+          apiR('GET',`/ls/api/v1/reports/statistics?timeBegin=${ODO_START}&timeEnd=${NOW_TS}&dataGroups=[can,fuel]&vehicles=[${tid}]`),
+          isT ? null : apiR('GET',`/ls/api/v1/reports/statistics?timeBegin=${fromTs}&timeEnd=${toTs}&dataGroups=[fuel]&vehicles=[${tid}]`)
+        ]);
+
+        let totalOdo=null, fuel_l=null;
+        // Одометр из общего запроса
+        if(odoRes?.code===200&&odoRes.data?.code===0){
+          const vd=odoRes.data.data?.vehicleDataList?.[0];
+          if(vd?.can?.distance!=null) totalOdo=Math.round(vd.can.distance);
+        }
+        // Расход за период
+        if(!isT&&fuelRes?.code===200&&fuelRes?.data?.code===0){
+          const vd=fuelRes.data.data?.vehicleDataList?.[0];
+          if(vd?.fuel?.fuelConsumption!=null) fuel_l=Math.round(vd.fuel.fuelConsumption/10*10)/10;
+        }
+        periodData[plate]={odo:totalOdo, fuel_l};
+      }catch{}
+    }));
+    renderFleet();
+    const h=$('fleet-hint');
+    if(h)h.innerHTML=getFleetHint()+` <span style="color:var(--amber)">⏳ ${Math.min(i+B,tids.length)}/${tids.length}</span>`;
+  }
+  setLoaderProgress('fleet',100,'Готово!');
+  setTimeout(()=>hideLoader('fleet'),400);
+  // Cache periodData
+  cacheSet('period_'+fleetPeriod, periodData);
+  renderFleet();updateFleetHint();
+  checkToNotifications();
+}
+async function loadGsmData(fromTs,toTs){
+  // Логика заправок:
+  // Пикапы, Тягачи, Манипуляторы → транспортные карты (ручной ввод счетов)
+  // Бульдозеры, Экскаваторы, ГНБ, Тракторы, Траншеекопатели → ДУТ (fuel.refuelling ÷ 10)
+  // Расход для всех → fuel.fuelConsumption ÷ 10
+
+  // Заправка только по ДУТ для всей техники
+  const CARD_TYPES  = [];
+  const DUT_TYPES   = ['Бульдозер','Экскаватор-погрузчик','Установка ГНБ','Трактор-траншеекопатель','Траншеекопатель','Манипулятор КМУ','Седельный тягач','Пикап'];
+
+  const tids=Object.keys(TID_MAP).map(Number);
+  const t2p={};Object.entries(TID_MAP).forEach(([t,p])=>{t2p[Number(t)]=p;});
+  gsmData={};const B=15; // batch=15 для скорости
+  $('gsm-hint').innerHTML='⏳ Загрузка данных Omnicomm...';
+  showLoader('gsm','Запрос данных расхода и заправки...');
+
+  for(let i=0;i<tids.length;i+=B){
+    const chunk=tids.slice(i,i+B);
+    await Promise.all(chunk.map(async tid=>{
+      const plate=t2p[tid];if(!plate)return;
+      const v=REG.find(r=>r.plate===plate);if(!v)return;
+      const isCard=CARD_TYPES.includes(v.type);
+      const isDut =DUT_TYPES.includes(v.type);
+      if(!isCard&&!isDut)return;
+      try{
+        const base=`/ls/api/v1/reports/statistics?timeBegin=${fromTs}&timeEnd=${toTs}&vehicles=[${tid}]`;
+        const [fR,cR]=await Promise.all([
+          apiR('GET',base+'&dataGroups=[fuel]'),
+          apiR('GET',base+'&dataGroups=[can]')
+        ]);
+        let c_l=null, r_l=null;
+        let period_odo=null;
+        if(fR.code===200&&fR.data?.code===0){
+          const vd=fR.data.data?.vehicleDataList?.[0];
+          const fuel=vd?.fuel||{};
+          if(fuel.fuelConsumption!=null) c_l=Math.round(fuel.fuelConsumption/10*10)/10;
+          if(isDut&&fuel.refuelling!=null) r_l=Math.round(fuel.refuelling/10*10)/10;
+          if(isCard) r_l=null;
+        }
+        // Пробег за период для нормы л/100км
+        if(cR?.code===200&&cR?.data?.code===0){
+          const vd=cR.data.data?.vehicleDataList?.[0];
+          if(vd?.can?.distance!=null) period_odo=Math.round(vd.can.distance*10)/10;
+        }
+        const price=v.fuel==='АИ-92'?236:323;
+        gsmData[plate]={
+          c_l,r_l,period_odo,
+          c_tg:c_l?Math.round(c_l*price):null,
+          r_tg:r_l?Math.round(r_l*price):null,
+          fuel:v.fuel,type:v.type,source:'dut',
+        };
+      }catch{}
+    }));
+    renderGsmTable();
+    $('gsm-hint').innerHTML=`⏳ Загрузка... ${Math.min(i+B,tids.length)}/${tids.length}`;
+    setLoaderProgress('gsm',Math.round((i+B)/tids.length*90),`${Math.min(i+B,tids.length)} / ${tids.length} машин`);
+  }
+
+  // Транспортные карты убраны — только ДУТ
+
+  renderGsmTable();
+  renderGsmMetrics();
+  setLoaderProgress('gsm',100,'Данные загружены!');
+  setTimeout(()=>hideLoader('gsm'),400);
+  $('gsm-hint').innerHTML='✅ Данные Omnicomm загружены';
+  renderGsmAnomalies();
 }
 
-// ══════════════════════════════════════════════
-//  RENDER OVERVIEW
-// ══════════════════════════════════════════════
-function renderOverview(){
-  // Vehicle status list (static for now, Omnicomm data pending)
-  const vtypes=[
-    {vt:'Пикап',cnt:54,col:'light',status:'Нет данных'},
-    {vt:'Погрузчик',cnt:22,col:'heavy',status:'Нет данных'},
-    {vt:'Манипулятор',cnt:17,col:'heavy',status:'Нет данных'},
-    {vt:'Бульдозер',cnt:12,col:'heavy',status:'Нет данных'},
-    {vt:'Тягач',cnt:9,col:'heavy',status:'Нет данных'},
-    {vt:'Трал',cnt:14,col:'heavy',status:'Нет данных'},
-    {vt:'Трактор',cnt:5,col:'heavy',status:'Нет данных'},
-    {vt:'ГНБ',cnt:5,col:'heavy',status:'Нет данных'},
-    {vt:'Вагон',cnt:19,col:'heavy',status:'Нет данных'},
-    {vt:'Самосвал',cnt:6,col:'heavy',status:'Нет данных'},
-  ];
-
-  document.getElementById('vst-list').innerHTML=vtypes.map(v=>`
-    <div class="vst-row" onclick="goPage('fleet');document.getElementById('fl-vtype').value='${v.vt}';renderFleetTbl()">
-      <div class="vst-icon" style="background:${vtColor(v.vt)}22;color:${vtColor(v.vt)}"><i class="ti ${vtIcon(v.vt)}"></i></div>
-      <div style="flex:1;min-width:0">
-        <div class="vst-name">${v.vt}</div>
-        <div class="vst-meta">${v.cnt} единиц · ${v.col==='light'?'Лёгкая':'Тяжёлая'} колонна</div>
-      </div>
-      <span class="badge b-gray">${v.status}</span>
-    </div>`).join('');
-
-  // Budget mini
-  const totalPlan=BUDGET.reduce((s,b)=>s+b.full_opex_month,0);
-  const totalFact=Object.values(FACT_OPEX).reduce((s,v)=>s+v,0);
-  const pct=Math.round(totalFact/totalPlan*100);
-  document.getElementById('budget-mini').innerHTML=`
-    <div class="srow"><span class="slb">OPEX план/мес</span><span class="svl" style="color:var(--text2)">${fmtM(totalPlan)}</span></div>
-    <div class="srow"><span class="slb">Факт (апр-май)</span><span class="svl" style="color:var(--green)">${fmtM(totalFact)}</span></div>
-    <div class="srow"><span class="slb">Исполнение</span><span class="svl" style="color:${pct>100?'var(--red)':pct>70?'var(--amber)':'var(--blue)'}">${pct}%</span></div>
-    <div class="prog-bar" style="margin-top:8px"><div class="prog-fill" style="width:${Math.min(pct,100)}%;background:${pct>100?'var(--red)':pct>70?'var(--amber)':'var(--green)'}"></div></div>`;
-
-  renderCharts();
-}
-
-function renderCharts(){
-  const gl='rgba(255,255,255,0.05)';
-  const tc='#484f58';
-
-  // Activity chart (mock)
-  const days=[];
-  for(let i=29;i>=0;i--){const d=new Date();d.setDate(d.getDate()-i);days.push(d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit'}));}
-  const actData=days.map(()=>Math.floor(Math.random()*60+20));
-
-  if(charts.act) charts.act.destroy();
-  charts.act=new Chart(document.getElementById('actChart'),{
-    type:'line',
-    data:{labels:days,datasets:[{label:'Активных ТС',data:actData,borderColor:'#3fb950',backgroundColor:'rgba(63,185,80,0.08)',fill:true,tension:0.4,pointRadius:0,borderWidth:2}]},
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{
-      x:{grid:{color:gl},ticks:{color:tc,font:{size:10},maxTicksLimit:8}},
-      y:{grid:{color:gl},ticks:{color:tc,font:{size:10}}}}}
-  });
-
-  // Type donut
-  const vtypes=['Пикап','Погрузчик','Манипулятор','Бульдозер','Тягач','Трал','Трактор','ГНБ','Вагон','Самосвал','Прочее'];
-  const vtCounts={}; vtypes.forEach(vt=>{vtCounts[vt]=0;});
-  VEHICLES.forEach(v=>{vtCounts[v.vtype]=(vtCounts[v.vtype]||0)+1;});
-  const vtColors=['#388bfd','#d29922','#56d364','#f85149','#a371f7','#8b949e','#3fb950','#39c5cf','#e3b341','#ff7b72','#6e7681'];
-
-  if(charts.type) charts.type.destroy();
-  charts.type=new Chart(document.getElementById('typeChart'),{
-    type:'doughnut',
-    data:{labels:vtypes,datasets:[{data:vtypes.map(vt=>vtCounts[vt]),backgroundColor:vtColors,borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'right',labels:{font:{size:10},color:'#8b949e',padding:8,boxWidth:10}}}}
-  });
-}
-
-// ══════════════════════════════════════════════
-//  RENDER FLEET TABLE
-// ══════════════════════════════════════════════
-function renderFleetTbl(){
-  const colF   = document.getElementById('fl-col')?.value||'';
-  const vtypeF = document.getElementById('fl-vtype')?.value||'';
-  const statF  = document.getElementById('fl-status')?.value||'';
-  const srchF  = (document.getElementById('fl-srch')?.value||'').toLowerCase();
-
-  let list=VEHICLES.filter(v=>{
-    if(colF   && v.column!==colF)  return false;
-    if(vtypeF && v.vtype!==vtypeF) return false;
-    if(srchF  && !v.plate.toLowerCase().includes(srchF)&&!v.model.toLowerCase().includes(srchF)) return false;
-    return true;
-  });
-
-  const tot=list.length,pgs=Math.ceil(tot/PG)||1;
-  if(fleetPgIdx>=pgs) fleetPgIdx=0;
-  const sl=list.slice(fleetPgIdx*PG,(fleetPgIdx+1)*PG);
-
-  document.getElementById('fl-pg').textContent=`стр. ${fleetPgIdx+1} / ${pgs}`;
-  document.getElementById('fl-total').textContent=`${tot} ТС`;
-  document.getElementById('fl-prev').disabled=fleetPgIdx===0;
-  document.getElementById('fl-next').disabled=fleetPgIdx>=pgs-1;
-  document.getElementById('fleet-sub').textContent=`${tot} единиц · данные Omnicomm`;
-
-  document.getElementById('fleet-metrics').innerHTML=`
-    <div class="mc mc-green"><div class="lb"><i class="ti ti-list"></i>Всего ТС</div><div class="vl">${VEHICLES.length}</div><div class="sb">в реестре</div></div>
-    <div class="mc mc-blue"><div class="lb"><i class="ti ti-car"></i>Лёгкая</div><div class="vl">${VEHICLES.filter(v=>v.column==='light').length}</div><div class="sb">пикапы</div></div>
-    <div class="mc mc-amber"><div class="lb"><i class="ti ti-truck"></i>Тяжёлая</div><div class="vl">${VEHICLES.filter(v=>v.column==='heavy').length}</div><div class="sb">спецтехника</div></div>
-    <div class="mc mc-blue"><div class="lb"><i class="ti ti-circle-check"></i>Онлайн</div><div class="vl" style="color:var(--text3)">—</div><div class="sb">ожидание API</div></div>
-    <div class="mc mc-red"><div class="lb"><i class="ti ti-wifi-off"></i>Офлайн</div><div class="vl" style="color:var(--text3)">—</div><div class="sb">ожидание API</div></div>`;
-
-  document.getElementById('fleet-tbody').innerHTML=sl.map(v=>`
-    <tr>
-      <td><i class="ti ${vtIcon(v.vtype)}" style="color:${vtColor(v.vtype)}"></i></td>
-      <td><span style="font-family:monospace;font-weight:700;color:var(--text)">${v.plate}</span></td>
-      <td style="color:var(--text2)">${v.model}</td>
-      <td style="color:var(--text3)">${v.year}</td>
-      <td>${v.column==='light'?'<span class="badge b-blue">Лёгкая</span>':'<span class="badge b-amber">Тяжёлая</span>'}</td>
-      <td><span class="badge b-gray">Нет данных</span></td>
-      <td class="num" style="color:var(--text3)">—</td>
-      <td class="num" style="color:var(--text3)">—</td>
-      <td class="num" style="color:var(--text3)">—</td>
-      <td class="sm">ожидание API</td>
-    </tr>`).join('');
-}
-function flPg(d){
-  const colF=document.getElementById('fl-col')?.value||'',vtypeF=document.getElementById('fl-vtype')?.value||'';
-  const tot=VEHICLES.filter(v=>(!colF||v.column===colF)&&(!vtypeF||v.vtype===vtypeF)).length;
-  fleetPgIdx=Math.max(0,Math.min(Math.ceil(tot/PG)-1,fleetPgIdx+d));
-  renderFleetTbl();
-}
-
-// ══════════════════════════════════════════════
-//  RENDER FUEL
-// ══════════════════════════════════════════════
-function renderFuel(){
-  document.getElementById('fuel-metrics').innerHTML=`
-    <div class="mc mc-blue"><div class="lb">ДТ — Тяжёлая</div><div class="vl">11 070 л</div><div class="sb">3 575 610 тг · 323 тг/л</div></div>
-    <div class="mc mc-green"><div class="lb">АИ-92 — Лёгкая</div><div class="vl">2 160 л</div><div class="sb">509 760 тг · 236 тг/л</div></div>
-    <div class="mc mc-amber"><div class="lb">Итого ГСМ</div><div class="vl">13 230 л</div><div class="sb">4 085 370 тг</div></div>
-    <div class="mc mc-purple"><div class="lb">Поставщик</div><div class="vl" style="font-size:14px">PetroRetail</div><div class="sb">Счёт KZ454748</div></div>`;
-
-  const fuelVehicles=[
-    {name:'ДТ — Тяжёлая колонна (70 ед)',pct:70,liters:11070,col:'var(--amber)'},
-    {name:'АИ-92 — Лёгкая колонна (54 ед)',pct:45,liters:2160,col:'var(--blue)'},
-  ];
-  document.getElementById('fuel-bars').innerHTML=fuelVehicles.map(f=>`
-    <div class="fl-item">
-      <div class="fl-lbl"><span>${f.name}</span><span>${f.liters.toLocaleString('ru-RU')} л</span></div>
-      <div class="fl-bg"><div class="fl-fill" style="width:${f.pct}%;background:${f.col}"></div></div>
-    </div>`).join('');
-
-  document.getElementById('fuel-history').innerHTML=`
-    <tr><td>29.04.2026</td><td><span class="badge b-amber">ДТ</span></td><td>PetroRetail ТОО</td><td class="num">11 070 л</td><td class="num">323 тг</td><td class="num">3 575 610 тг</td></tr>
-    <tr><td>29.04.2026</td><td><span class="badge b-blue">АИ-92</span></td><td>PetroRetail ТОО</td><td class="num">2 160 л</td><td class="num">236 тг</td><td class="num">509 760 тг</td></tr>`;
-}
-
-// ══════════════════════════════════════════════
-//  RENDER BUDGET
-// ══════════════════════════════════════════════
+// ── RENDER BUDGET ────────────────────────────
 function renderBudget(){
-  const totalCapex    = BUDGET.reduce((s,b)=>s+b.capex,0);
-  const totalOpexYear = BUDGET.reduce((s,b)=>s+b.opex_year,0);
-  const totalOpexMon  = BUDGET.reduce((s,b)=>s+b.full_opex_month,0);
-  const totalFact     = Object.values(FACT_OPEX).reduce((s,v)=>s+v,0);
-  const pct           = Math.round(totalFact/totalOpexMon*100);
+  const exps=filtExp();
+  const fact=exps.reduce((s,e)=>s+e.amt,0);
 
-  document.getElementById('bud-metrics').innerHTML=`
-    <div class="mc mc-purple"><div class="lb"><i class="ti ti-building-bank"></i>CAPEX (всего)</div><div class="vl">${(totalCapex/1e9).toFixed(2)} млрд</div><div class="sb">164 единицы</div></div>
-    <div class="mc mc-blue"><div class="lb"><i class="ti ti-chart-line"></i>OPEX план/год</div><div class="vl">${(totalOpexYear/1e9).toFixed(2)} млрд</div><div class="sb">${fmtM(totalOpexMon)}/мес</div></div>
-    <div class="mc mc-green"><div class="lb"><i class="ti ti-coin"></i>Факт (апр-май)</div><div class="vl">${fmtM(totalFact)}</div><div class="sb">2 месяца</div></div>
-    <div class="mc ${pct>100?'mc-red':'mc-amber'}"><div class="lb"><i class="ti ti-percent"></i>Исполнение OPEX</div><div class="vl">${pct}%</div><div class="sb">${pct>100?'Перерасход':'В плане'}</div></div>
-    <div class="mc mc-blue"><div class="lb"><i class="ti ti-users"></i>Кол-во техники</div><div class="vl">164</div><div class="sb">единицы</div></div>`;
+  // Период: год → opex_yr, иначе opex_mo × кол-во месяцев
+  const pd=getPD();
+  const isYear=(periodFromMonth===0&&periodToMonth===11);
+  const nM=pd.count; // кол-во месяцев
 
-  // CAPEX bar chart
-  const gl='rgba(255,255,255,0.05)',tc='#484f58';
-  if(charts.capex) charts.capex.destroy();
-  charts.capex=new Chart(document.getElementById('capexChart'),{
-    type:'bar',
-    data:{
-      labels:BUDGET.map(b=>b.type.substring(0,18)),
-      datasets:[{label:'CAPEX',data:BUDGET.map(b=>b.capex/1e9),backgroundColor:BUDGET.map((_,i)=>`hsl(${210+i*15},70%,60%)`),borderRadius:4,borderSkipped:false}]
-    },
-    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
-      scales:{x:{grid:{display:false},ticks:{color:tc,font:{size:9},maxRotation:45}},
-              y:{grid:{color:gl},ticks:{color:tc,font:{size:10},callback:v=>v.toFixed(1)+' млрд'}}}}
+  const planPeriod = isYear ? OPEX_YR_TOTAL : OPEX_MO_TOTAL * nM;
+  const pct=planPeriod>0?Math.round(fact/planPeriod*100):0;
+  const rem=planPeriod-fact;
+  const periodLabel=isYear?`Год ${YEAR}`:nM===1?`${ML[pd.fromM]} ${YEAR}`:`${ML[pd.fromM]}–${ML[pd.toM]} ${YEAR} (${nM} мес.)`;
+  const perLabel=isYear?'в год':'в мес.×'+nM;
+
+  $('bud-metrics').innerHTML=`
+    <div class="mc mc-blue"><div class="lb"><i class="ti ti-coin"></i>OPEX план · ${periodLabel}</div>
+      <div class="vl">${(planPeriod/1e6).toFixed(1)}</div>
+      <div class="sb">млн тг ${perLabel} · итого</div></div>
+    <div class="mc mc-green"><div class="lb"><i class="ti ti-check"></i>Факт OPEX</div>
+      <div class="vl">${(fact/1e6).toFixed(1)}</div>
+      <div class="sb">${pct}% от плана · млн тг</div>
+      <div class="prog"><div class="prog-f" style="width:${Math.min(pct,100)}%;background:var(--green)"></div></div></div>
+    <div class="mc mc-${rem<0?'red':'teal'}"><div class="lb"><i class="ti ti-arrow-right"></i>Остаток</div>
+      <div class="vl">${(Math.abs(rem)/1e6).toFixed(1)}</div>
+      <div class="sb">${rem<0?'перерасход':'до конца'} · млн тг</div></div>
+`;
+
+  // OPEX cats
+  const cf={};exps.forEach(e=>{
+    if(e.type==='ГСМ')cf['ГСМ']=(cf['ГСМ']||0)+e.amt;
+    else if(e.type.includes('обслуживание')||e.type.includes('ТО'))cf['Обслуживание']=(cf['Обслуживание']||0)+e.amt;
+    else cf['Прочее']=(cf['Прочее']||0)+e.amt;
+  });
+  $('bud-cats').innerHTML=OPEX_CATS.map(c=>{
+    const catPlan=isYear?c.plan*12:c.plan*nM;
+    const f=cf[c.name]||0,r=catPlan-f,p=f>0?Math.min(Math.round(f/catPlan*100),100):0;
+    const col=p>90?'var(--red)':p>60?'var(--amber)':'var(--green)';
+    return`<div class="cat-row">
+      <span style="display:flex;align-items:center;gap:4px"><span style="width:7px;height:7px;border-radius:2px;background:${c.col};flex-shrink:0"></span>${c.name}</span>
+      <span style="text-align:right;color:var(--t3)">${(catPlan/1e6).toFixed(1)}м</span>
+      <span style="text-align:right;color:${f>0?'var(--green)':'var(--t3)'}">${f>0?(f/1e6).toFixed(1)+'м':'—'}</span>
+      <span style="text-align:right;color:var(--t3)">${(Math.abs(r)/1e6).toFixed(1)}м</span>
+      <span style="text-align:right;color:${col};font-weight:600">${p>0?p+'%':'—'}</span>
+      <div class="cat-bar"><div class="cat-bar-f" style="width:${p}%;background:${col}"></div></div>
+    </div>`;}).join('');
+
+  // Types table — показываем opex за период
+  // ── Таблица по типам техники ────────────────
+  // Год → opex_yr; иначе → opex_mo × nM (isYear и nM уже объявлены выше)
+
+  $('bud-types').innerHTML = (() => {
+    const rows = BUDGET.map(b => {
+      const plan = isYear ? b.opex_yr      : b.opex_mo * nM;
+      const svc  = isYear ? b.svc * 12    : b.svc  * nM;
+      const gps  = isYear ? b.gps * 12    : b.gps  * nM;
+      const ins  = isYear ? b.ins * 12    : b.ins  * nM;
+      const park = isYear ? b.park * 12   : b.park * nM;
+      const unit = Math.round(plan / b.n);
+      return `<tr>
+        <td>${b.type}</td>
+        <td class="num" style="color:var(--t2)">${b.n}</td>
+        <td class="num" style="font-weight:700;color:var(--t)">${(plan/1e6).toFixed(2)} <span style="font-size:10px;color:var(--t3)">млн</span></td>
+        <td class="num" style="font-size:11px;color:var(--t2)">${(unit/1e6).toFixed(3)} <span style="font-size:10px;color:var(--t3)">млн</span></td>
+        <td class="num" style="color:var(--blue)">${svc>0?(svc/1e6).toFixed(2)+' млн':'—'}</td>
+        <td class="num" style="color:var(--teal)">${gps>0?fmtN(gps)+' тг':'—'}</td>
+        <td class="num" style="color:var(--purple)">${ins>0?fmtN(ins)+' тг':'—'}</td>
+        <td class="num" style="color:var(--t2)">${park>0?fmtN(park)+' тг':'—'}</td>
+      </tr>`;
+    });
+    // Итого
+    const tPlan = isYear ? OPEX_YR_TOTAL : OPEX_MO_TOTAL * nM;
+    const tSvc  = BUDGET.reduce((s,b)=>s+b.svc,0)  * (isYear?12:nM);
+    const tGps  = BUDGET.reduce((s,b)=>s+b.gps,0)  * (isYear?12:nM);
+    const tIns  = BUDGET.reduce((s,b)=>s+b.ins,0)  * (isYear?12:nM);
+    const tPark = BUDGET.reduce((s,b)=>s+b.park,0) * (isYear?12:nM);
+    rows.push(`<tr style="background:var(--s2);font-weight:600;border-top:.5px solid var(--b2)">
+      <td>ИТОГО</td>
+      <td class="num" style="color:var(--t2)">160</td>
+      <td class="num" style="color:var(--green)">${(tPlan/1e6).toFixed(2)} млн</td>
+      <td class="num"></td>
+      <td class="num" style="color:var(--blue)">${(tSvc/1e6).toFixed(2)} млн</td>
+      <td class="num" style="color:var(--teal)">${fmtN(tGps)} тг</td>
+      <td class="num" style="color:var(--purple)">${fmtN(tIns)} тг</td>
+      <td class="num" style="color:var(--t2)">${fmtN(tPark)} тг</td>
+    </tr>`);
+    return rows.join('');
+  })();
+
+  // Update table header
+  const thPlan=document.getElementById('th-opex-plan');
+  if(thPlan) thPlan.textContent=isYear?'OPEX в год':'OPEX × '+nM+' мес.';
+
+  // Chart
+  const gl='rgba(255,255,255,.05)',tc='#484f58';
+  const planBg=OPEX_PLAN_M.map((_,i)=>i>=pd.fromM&&i<=pd.toM?'rgba(56,139,253,.6)':'rgba(56,139,253,.15)');
+
+  // Факт по месяцам из реальных затрат
+  const factByMonth=ML.map((_,mi)=>{
+    const mStart=new Date(YEAR,mi,1);
+    const mEnd=new Date(YEAR,mi+1,0,23,59,59);
+    const sum=expenses.filter(e=>{const d=new Date(e.date);return d>=mStart&&d<=mEnd;}).reduce((s,e)=>s+e.amt,0);
+    return sum>0?Math.round(sum/1e5)/10:null;
   });
 
-  // OPEX pie
-  const opexCats=['Обслуживание','ФОТ','ГСМ','GPS','ОГПО/КАСКО','Стоянка','Амортизация'];
-  const opexVals=[
-    BUDGET.reduce((s,b)=>s+b.service,0),
-    82980000,67500000,2250000+702000,1850000,3960000,
-    BUDGET.reduce((s,b)=>s+b.amort_month,0)*12
-  ];
-  if(charts.opexPie) charts.opexPie.destroy();
-  charts.opexPie=new Chart(document.getElementById('opexPieChart'),{
-    type:'doughnut',
-    data:{labels:opexCats,datasets:[{data:opexVals.map(v=>v/1e6),backgroundColor:['#388bfd','#3fb950','#d29922','#a371f7','#f85149','#39c5cf','#e3b341'],borderWidth:0,hoverOffset:4}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'right',labels:{font:{size:10},color:'#8b949e',padding:8,boxWidth:10,callback:(v,ctx)=>ctx.chart.data.labels[ctx.dataIndex]}}}}
-  });
+  if(charts.opex){charts.opex.destroy();charts.opex=null;}
+  charts.opex=new Chart($('opex-chart'),{type:'bar',data:{labels:ML,datasets:[
+    {label:'План OPEX',data:OPEX_PLAN_M,backgroundColor:planBg,borderColor:'#388bfd',borderWidth:1,borderRadius:3,borderSkipped:false},
+    {label:'Факт',data:factByMonth,backgroundColor:'rgba(63,185,80,.8)',borderColor:'#3fb950',borderWidth:1,borderRadius:3,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},color:tc,padding:8,boxWidth:9}}},
+    scales:{x:{grid:{display:false},ticks:{color:tc,font:{size:10}}},y:{grid:{color:gl},ticks:{color:tc,font:{size:10},callback:v=>v+' млн'}}}}});
 
-  // Plan vs Fact monthly
-  if(charts.opexMonth) charts.opexMonth.destroy();
-  charts.opexMonth=new Chart(document.getElementById('opexMonthChart'),{
-    type:'bar',
-    data:{
-      labels:MONTHS_DATA.labels,
-      datasets:[
-        {label:'План',data:MONTHS_DATA.plan.map(v=>v/1e6),backgroundColor:'rgba(56,139,253,0.3)',borderColor:'#388bfd',borderWidth:1,borderRadius:4,borderSkipped:false},
-        {label:'Факт',data:MONTHS_DATA.fact.map(v=>v/1e6),backgroundColor:'rgba(63,185,80,0.8)',borderColor:'#3fb950',borderWidth:1,borderRadius:4,borderSkipped:false},
-      ]
-    },
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{position:'top',labels:{font:{size:11},color:'#8b949e'}}},
-      scales:{x:{grid:{display:false},ticks:{color:tc,font:{size:11}}},
-              y:{grid:{color:gl},ticks:{color:tc,font:{size:10},callback:v=>v.toFixed(0)+' млн'}}}}
-  });
+  renderOpexStructure();
+}
 
-  // Budget table
-  document.getElementById('bud-tbody').innerHTML=BUDGET.map(b=>{
-    const fact=FACT_OPEX[b.type]||0;
-    const pct=b.full_opex_month>0?Math.round(fact/b.full_opex_month*100):0;
-    const pctColor=pct>100?'var(--red)':pct>70?'var(--amber)':pct>0?'var(--green)':'var(--text3)';
+// ── RENDER EXPENSES ──────────────────────────
+function updateExpButtons(){
+  const canAdd = CAN_ADD_UNPLANNED.includes(currentUserEmail);
+  const canEdit= CAN_EDIT.includes(currentUserEmail);
+  const bu=document.getElementById('btn-unplanned');
+  const be=document.getElementById('btn-edit');
+  if(bu) bu.style.display=canAdd?'inline-flex':'none';
+  if(be) be.style.display=canEdit?'inline-flex':'none';
+}
+function openAddExp(){
+  document.getElementById('f-date').value=new Date().toISOString().substring(0,10);
+  document.getElementById('exp-modal').classList.add('open');
+}
+function openEditMode(){
+  editMode=!editMode;
+  const be=document.getElementById('btn-edit');
+  if(be) be.style.background=editMode?'var(--amber-bg)':'';
+  if(be) be.style.color=editMode?'var(--amber)':'';
+  if(be) be.innerHTML=editMode?'<i class=\'ti ti-check\'></i> Сохранить':'<i class=\'ti ti-pencil\'></i> Внести корректировки';
+  renderExp();
+}
+let editMode=false;
+function renderExp(){
+  const tf=$('ef-type')?.value||'',sf=($('ef-srch')?.value||'').toLowerCase();
+  const exps=filtExp().filter(e=>(!tf||e.type===tf)&&(!sf||(e.desc+e.contr+(e.plates||[]).join('')).toLowerCase().includes(sf))).sort((a,b)=>b.date.localeCompare(a.date));
+  const tot=exps.reduce((s,e)=>s+e.amt,0);
+  $('exp-hdr').textContent=`${exps.length} записей · Итого: ${fmtN(tot)} тг`;
+  $('exp-foot').textContent=`Итого: ${fmtN(tot)} тг`;
+  const HEAVY_SIZE=72;
+  const tb=t=>({'ГСМ':'b-amber','Техническое обслуживание':'b-blue','Сервисное обслуживание':'b-teal','Расходники/оборудование':'b-gray','Внеплановые':'b-red'})[t]||'b-gray';
+  renderExpCharts();
+  $('exp-tbody').innerHTML=exps.map(e=>{
+    let perStr='—',plStr='';
+    if(e.plates?.length){const per=Math.round(e.amt/e.plates.length);perStr=fmtN(per)+' тг';plStr=e.plates.length<=4?e.plates.join(', '):e.plates.slice(0,3).join(', ')+` +${e.plates.length-3}`;}
+    else if(e.type==='ГСМ'){perStr='—';plStr='АИ-92: 54 пикапа / ДТ: 72 ед.';}
+    else{perStr=fmtN(Math.round(e.amt/HEAVY_SIZE))+' тг';plStr=`Тяжёлая колонна (${HEAVY_SIZE} ед.)`;}
+    const descCell = editMode
+      ? `<input type="text" value="${e.desc.replace(/"/g,'&quot;')}" onchange="editExpDesc('${e.id}',this.value)" style="width:100%;padding:3px 5px;font-size:11px;font-family:inherit;border-radius:4px;border:.5px solid var(--b2);background:var(--s2);color:var(--t)">`
+      : `<span style="font-size:11px">${e.desc}</span>`;
+    const typeCell = editMode
+      ? `<select onchange="editExpType('${e.id}',this.value)" style="font-size:10px;font-family:inherit;border-radius:4px;border:.5px solid var(--b2);background:var(--s2);color:var(--t);padding:2px 4px">
+          <option ${e.type==='ГСМ'?'selected':''}>ГСМ</option>
+          <option ${e.type==='Техническое обслуживание'?'selected':''}>Техническое обслуживание</option>
+          <option ${e.type==='Сервисное обслуживание'?'selected':''}>Сервисное обслуживание</option>
+          <option ${e.type==='Расходники/оборудование'?'selected':''}>Расходники/оборудование</option>
+          <option ${e.type==='Командировочные'?'selected':''}>Командировочные</option>
+          <option ${e.type==='Внеплановые'?'selected':''}>Внеплановые</option>
+         </select>`
+      : `<span class="badge ${tb(e.type)}" style="font-size:9px">${e.type}</span>`;
     return`<tr>
-      <td style="color:var(--text)">${b.type}</td>
-      <td class="num" style="color:var(--text2)">${b.count}</td>
-      <td class="num" style="color:var(--text3)">${fmtM(b.price)}</td>
-      <td class="num" style="color:var(--purple)">${(b.capex/1e9).toFixed(2)} млрд</td>
-      <td class="num" style="color:var(--text2)">${fmtM(b.opex_year)}</td>
-      <td class="num" style="color:var(--blue)">${fmtM(b.full_opex_month)}</td>
-      <td class="num" style="color:${fact>0?'var(--green)':'var(--text3)'}">${fact>0?fmtM(fact):'—'}</td>
-      <td class="num" style="color:${pctColor}">${pct>0?pct+'%':'—'}</td>
-      <td style="width:80px">
-        <div class="prog-bar"><div class="prog-fill" style="width:${Math.min(pct,100)}%;background:${pctColor}"></div></div>
-      </td>
+      <td style="white-space:nowrap">${fd(e.date)}</td>
+      <td>${typeCell}</td>
+      <td style="max-width:180px">${descCell}</td>
+      <td style="font-size:11px;color:var(--t2)">${e.contr}</td>
+      <td style="font-size:10px;color:var(--t3);max-width:150px;white-space:normal">${plStr}</td>
+      <td class="num">${fmtN(e.amt)} тг</td>
+      <td class="num" style="font-size:10px">${perStr}</td>
+      <td>${editMode&&CAN_ADD_UNPLANNED.includes(currentUserEmail)?`<button onclick="delExp('${e.id}')" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:13px;padding:2px"><i class="ti ti-trash"></i></button>`:''}</td>
     </tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:16px">Нет данных за период</td></tr>';
+}
+
+// ── RENDER GSM ───────────────────────────────
+// ── GSM Type Multi-select ───────────────────
+function toggleGsmTypes(){
+  const dd=document.getElementById('gsm-type-dd');
+  if(dd) dd.style.display=dd.style.display==='none'?'block':'none';
+}
+function gsmTypeAll(cb){
+  document.querySelectorAll('.gt').forEach(c=>c.checked=cb.checked);
+  updateGsmTypes();
+}
+function updateGsmTypes(){
+  const checked=[...document.querySelectorAll('.gt:checked')].map(c=>c.value);
+  const all=document.querySelectorAll('.gt').length;
+  const lbl=document.getElementById('gsm-type-lbl');
+  const allCb=document.getElementById('gt-all');
+  if(lbl){
+    if(checked.length===all) lbl.textContent='Все типы';
+    else if(checked.length===0) lbl.textContent='Не выбрано';
+    else if(checked.length===1) lbl.textContent=checked[0];
+    else lbl.textContent=`${checked.length} типа выбрано`;
+  }
+  if(allCb) allCb.checked=checked.length===all;
+  renderGsmTable();
+}
+// Close dropdown on outside click
+document.addEventListener('click',e=>{
+  const wrap=document.getElementById('gsm-type-wrap');
+  const dd=document.getElementById('gsm-type-dd');
+  if(wrap&&dd&&!wrap.contains(e.target)) dd.style.display='none';
+});
+
+// ── Render OPEX Structure (horizontal bars) ──
+function renderOpexStructure(){
+  const el=document.getElementById('opex-structure');if(!el)return;
+  const isYear=(periodFromMonth===0&&periodToMonth===11);
+  const nM=periodToMonth-periodFromMonth+1;
+  const total=isYear?OPEX_YR_TOTAL:OPEX_MO_TOTAL*nM;
+  const cats=OPEX_CATS.map(c=>({
+    name:c.name,
+    val:isYear?c.plan*12:c.plan*nM,
+    col:c.col
+  })).sort((a,b)=>b.val-a.val);
+  el.innerHTML=cats.map(c=>{
+    const pct=Math.round(c.val/total*100);
+    return`<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:3px">
+        <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:${c.col};flex-shrink:0;display:inline-block"></span>${c.name}</span>
+        <span style="font-family:monospace;font-weight:600">${(c.val/1e6).toFixed(1)} млн <span style="color:var(--t3);font-weight:400">(${pct}%)</span></span>
+      </div>
+      <div style="height:8px;background:var(--s3);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${pct}%;background:${c.col};border-radius:99px;transition:width .4s"></div>
+      </div>
+    </div>`;
   }).join('');
 }
 
-// ══════════════════════════════════════════════
-//  NAVIGATION
-// ══════════════════════════════════════════════
-function goPage(name){
-  ['overview','fleet','fuel','budget'].forEach(p=>{
-    const el=document.getElementById('page-'+p);
-    if(el)el.style.display=p===name?'':'none';
-  });
-  document.querySelectorAll('.ntab').forEach((el,i)=>{
-    el.classList.toggle('active',['overview','fleet','fuel','budget'][i]===name);
-  });
-  if(name==='fleet')  renderFleetTbl();
-  if(name==='fuel')   renderFuel();
-  if(name==='budget') renderBudget();
+// ── Render Fuel Balance (creative horizontal) ──
+function renderFuelBalance(){
+  const el=document.getElementById('fuel-balance');if(!el)return;
+  const ai_l=Object.values(gsmData).filter(d=>d.fuel==='АИ-92').reduce((s,d)=>s+(d.c_l||0),0);
+  const dt_l=Object.values(gsmData).filter(d=>d.fuel==='ДТ').reduce((s,d)=>s+(d.c_l||0),0);
+  const total=ai_l+dt_l||1;
+  const aiPct=Math.round(ai_l/total*100);
+  const dtPct=100-aiPct;
+  const ai_tg=Math.round(ai_l*236);
+  const dt_tg=Math.round(dt_l*323);
+  el.innerHTML=`
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+      <span style="font-size:11px;color:var(--blue);font-weight:600;width:45px;text-align:right">${aiPct}%</span>
+      <div style="flex:1;height:24px;border-radius:99px;overflow:hidden;display:flex;background:var(--s3)">
+        <div style="width:${aiPct}%;background:linear-gradient(90deg,#388bfd,#58a6ff);border-radius:99px 0 0 99px;transition:width .5s;display:flex;align-items:center;justify-content:center">
+          ${aiPct>15?'<span style="font-size:10px;color:#fff;font-weight:600">АИ-92</span>':''}
+        </div>
+        <div style="width:${dtPct}%;background:linear-gradient(90deg,#d29922,#e3b341);border-radius:0 99px 99px 0;transition:width .5s;display:flex;align-items:center;justify-content:center">
+          ${dtPct>15?'<span style="font-size:10px;color:#000;font-weight:600">ДТ</span>':''}
+        </div>
+      </div>
+      <span style="font-size:11px;color:var(--amber);font-weight:600;width:45px">${dtPct}%</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div style="background:rgba(56,139,253,.08);border:.5px solid rgba(56,139,253,.2);border-radius:var(--r);padding:8px 10px">
+        <div style="font-size:10px;color:var(--blue);margin-bottom:2px">⛽ АИ-92 · Пикапы</div>
+        <div style="font-size:16px;font-weight:700;color:var(--blue);font-family:monospace">${Math.round(ai_l).toLocaleString('ru-RU')} л</div>
+        <div style="font-size:10px;color:var(--t3)">${(ai_tg/1e6).toFixed(2)} млн тг · 236 тг/л</div>
+      </div>
+      <div style="background:rgba(210,153,34,.08);border:.5px solid rgba(210,153,34,.2);border-radius:var(--r);padding:8px 10px">
+        <div style="font-size:10px;color:var(--amber);margin-bottom:2px">⛽ ДТ · Тяжёлая техника</div>
+        <div style="font-size:16px;font-weight:700;color:var(--amber);font-family:monospace">${Math.round(dt_l).toLocaleString('ru-RU')} л</div>
+        <div style="font-size:10px;color:var(--t3)">${(dt_tg/1e6).toFixed(2)} млн тг · 323 тг/л</div>
+      </div>
+    </div>`;
 }
 
-// ══════════════════════════════════════════════
-//  MAIN LOAD
-// ══════════════════════════════════════════════
-async function loadAll(){
-  hideErr();
-  document.getElementById('ov').style.display='flex';
-  try{
-    if(!jwt){
-      const ok=await doAuth();
-      if(!ok){ showErr('Ошибка авторизации Omnicomm. GPS данные недоступны.'); }
+function renderGsmMetrics(){
+  const totalC_l=Object.values(gsmData).reduce((s,d)=>s+(d.c_l||0),0);
+  const ai_l=Object.values(gsmData).filter(d=>d.fuel==='АИ-92').reduce((s,d)=>s+(d.c_l||0),0);
+  const dt_l=Object.values(gsmData).filter(d=>d.fuel==='ДТ').reduce((s,d)=>s+(d.c_l||0),0);
+  const totalC_tg=Math.round(ai_l*236+dt_l*323);
+  const dut_l=Object.values(gsmData).reduce((s,d)=>s+(d.r_l||0),0);
+  // ГСМ план умножаем на кол-во месяцев периода
+  const{fromTs:gFromTs,toTs:gToTs}=getGenPD();
+  const gFrom=new Date(gFromTs*1000);
+  const gTo  =new Date(gToTs*1000);
+  // Кол-во полных месяцев в периоде
+  const gMonths=Math.max(1,Math.round((gTo-gFrom)/(1000*60*60*24*30.44)));
+  const planGsm=GSM_PLAN*gMonths;
+  const pct=totalC_tg>0?Math.round(totalC_tg/planGsm*100):0;
+  const planLabel=gMonths===1?'67.5 млн тг/мес':`67.5 млн × ${gMonths} мес = ${(planGsm/1e6).toFixed(1)} млн`;
+  $('gsm-metrics').innerHTML=`
+    <div class="mc mc-blue"><div class="lb"><i class="ti ti-coin"></i>ГСМ план · ${gMonths} мес.</div><div class="vl">${(planGsm/1e6).toFixed(1)}</div><div class="sb">${planLabel}</div></div>
+    <div class="mc mc-green"><div class="lb"><i class="ti ti-check"></i>Факт расход</div><div class="vl">${(totalC_tg/1e6).toFixed(1)}</div><div class="sb">${pct}% от плана · млн тг</div><div class="prog"><div class="prog-f" style="width:${Math.min(pct,100)}%;background:var(--green)"></div></div></div>
+    <div class="mc mc-amber"><div class="lb"><i class="ti ti-droplet"></i>Расход, л</div><div class="vl">${Math.round(totalC_l)}</div><div class="sb">АИ-92:${Math.round(ai_l)}л · ДТ:${Math.round(dt_l)}л</div></div>
+    <div class="mc mc-purple"><div class="lb"><i class="ti ti-antenna"></i>Заправка по ДУТ</div><div class="vl">${Math.round(dut_l)}</div><div class="sb">л · данные Omnicomm</div></div>`;
+
+  const gl='rgba(255,255,255,.05)',tc='#484f58';
+  if(charts.gsm){charts.gsm.destroy();charts.gsm=null;}
+  charts.gsm=new Chart($('gsm-chart'),{type:'bar',data:{labels:ML,datasets:[
+    {label:'План',data:GSM_PLAN_M,backgroundColor:'rgba(56,139,253,.2)',borderColor:'#388bfd',borderWidth:1,borderRadius:3,borderSkipped:false},
+    {label:'Факт',data:GSM_FACT_M.map(v=>v!=null?v:null),backgroundColor:'rgba(210,153,34,.8)',borderColor:'#d29922',borderWidth:1,borderRadius:3,borderSkipped:false},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{font:{size:10},color:tc,padding:8,boxWidth:9}}},
+    scales:{x:{grid:{display:false},ticks:{color:tc,font:{size:10}}},y:{grid:{color:gl},ticks:{color:tc,font:{size:10},callback:v=>v+' млн'}}}}});
+  renderFuelBalance();
+}
+
+function renderGsmTable(){
+  const sf=($('gsm-srch')?.value||'').toLowerCase();
+  const ff=$('gsm-fuel')?.value||'';
+  const checkedTypes=[...document.querySelectorAll('.gt:checked')].map(c=>c.value);
+  const allSelected=checkedTypes.length===document.querySelectorAll('.gt').length;
+  gsmFiltered=REG.filter(v=>{
+    if(sf&&!v.plate.toLowerCase().includes(sf)&&!v.brand.toLowerCase().includes(sf)&&!v.model.toLowerCase().includes(sf))return false;
+    if(ff&&v.fuel!==ff)return false;
+    if(!allSelected&&!checkedTypes.includes(v.type))return false;
+    const d=gsmData[v.plate];
+    return d&&(d.c_l||d.r_l);
+  }).sort((a,b)=>(gsmData[b.plate]?.c_l||0)-(gsmData[a.plate]?.c_l||0));
+  const tot=gsmFiltered.length,pgs=Math.ceil(tot/PG)||1;
+  if(gsmPgIdx>=pgs)gsmPgIdx=0;
+  const sl=gsmFiltered.slice(gsmPgIdx*PG,(gsmPgIdx+1)*PG);
+  $('gp-pg').textContent=`стр. ${gsmPgIdx+1}/${pgs}`;
+  $('gp-total').textContent=`${tot} машин`;
+  $('gp-prev').disabled=gsmPgIdx===0;$('gp-next').disabled=gsmPgIdx>=pgs-1;
+  const maxL=Math.max(...gsmFiltered.map(v=>gsmData[v.plate]?.c_l||0),1);
+  $('gsm-tbody').innerHTML=sl.map(v=>{
+    const d=gsmData[v.plate]||{};
+    const pct=d.c_l?Math.round(d.c_l/maxL*100):0;
+    const fuelB=v.fuel==='АИ-92'?'<span class="badge b-blue">АИ-92</span>':'<span class="badge b-amber">ДТ</span>';
+    const srcB='<span class="badge b-purple" style="font-size:9px">ДУТ</span>';
+    const rLabel='(ДУТ)';
+    return`<tr>
+      <td style="font-family:monospace;font-weight:700">${v.plate}</td>
+      <td style="font-size:11px;max-width:100px;overflow:hidden;text-overflow:ellipsis">${v.brand} ${v.model}</td>
+      <td>${fuelB}</td><td>${srcB}</td>
+      <td class="num">${d.c_l!=null?`${d.c_l}<div class="fl-bar"><div class="fl-fill" style="width:${pct}%;background:${v.fuel==='АИ-92'?'var(--blue)':'var(--amber)'}"></div></div>`:'—'}</td>
+      <td class="num" style="font-size:11px">${(()=>{const norm=FUEL_NORMS[v.type];if(!d.c_l||!d.period_odo||d.period_odo<10)return'—';const n100=Math.round(d.c_l/d.period_odo*100*10)/10;const col=norm&&n100>norm*1.3?'var(--red)':norm&&n100>norm*1.1?'var(--amber)':'var(--green)';return`<span style="color:${col}">${n100}</span>`})()}</td>
+      <td class="num">${d.c_tg!=null?fmtN(d.c_tg)+' тг':'—'}</td>
+      <td class="num">${d.r_l>0?`${d.r_l} <span style="font-size:9px;color:var(--t3)">${rLabel}</span>`:'—'}</td>
+      <td class="num">${d.r_tg>0?fmtN(d.r_tg)+' тг':'—'}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--t3);padding:16px">Нет данных — нажмите Обновить</td></tr>';
+  $('gsm-inv').innerHTML=gsmInvoices.sort((a,b)=>b.date.localeCompare(a.date)).map(g=>{
+    const per=g.type==='ДТ'?Math.round(g.amt/HC):Math.round(g.amt/LC);
+    return`<tr>
+      <td>${fd(g.date)}</td><td>${g.bill}</td><td style="font-size:11px">${g.supp}</td>
+      <td>${g.type==='ДТ'?'<span class="badge b-amber">ДТ</span>':'<span class="badge b-blue">АИ-92</span>'}</td>
+      <td class="num">${fmtN(g.liters)}</td><td class="num">${g.ppl} тг</td>
+      <td class="num">${fmtN(g.amt)} тг</td><td class="num">${fmtN(per)} тг</td>
+      <td><button onclick="delGsm('${g.id}')" style="background:none;border:none;cursor:pointer;color:var(--t3);font-size:13px;padding:2px"><i class="ti ti-trash"></i></button></td>
+    </tr>`;}).join('');
+}
+function gsmPg(d){const tot=gsmFiltered.length,pgs=Math.ceil(tot/PG)||1;gsmPgIdx=Math.max(0,Math.min(pgs-1,gsmPgIdx+d));renderGsmTable();}
+
+// ── RENDER FLEET ─────────────────────────────
+// ── TO Calculation ──────────────────────────
+function getNextTO(v, odo){
+  if(odo==null) return null;
+  odo = Math.round(odo);
+  let firstTO, interval;
+
+  if(v.brand==='CHANGAN')                                  {firstTO=15000; interval=10000;}
+  else if(v.brand==='GREAT WALL')                          {firstTO=20000; interval=15000;}
+  else if(v.brand==='HOWO')                                {firstTO=5000;  interval=10000;}
+  else if(v.brand==='DongFeng'&&v.type==='Манипулятор КМУ'){firstTO=5000;  interval=10000;}
+  else return null;
+
+  if(odo < firstTO) return{next:firstTO, rem:firstTO-odo};
+  const n = Math.ceil((odo - firstTO) / interval);
+  const nextTO = firstTO + n * interval;
+  const rem = Math.round(nextTO - odo);
+  return{next:nextTO, rem:Math.max(0,rem)};
+}
+
+function remColor(rem){
+  if(rem==null) return 'var(--t3)';
+  if(rem<=500) return 'var(--red)';
+  if(rem<=1500) return 'var(--amber)';
+  return 'var(--green)';
+}
+
+function getFleetHint(){return{today:'📍 Сегодня — остаток бака + одометр CAN',week:'📅 Неделя — расход ГСМ + одометр CAN',month:'📅 Месяц — расход ГСМ + одометр CAN',custom:'📅 Период — расход ГСМ + одометр CAN'}[fleetPeriod]||'';}
+function updateFleetHint(){
+  const h=$('fleet-hint');if(!h)return;
+  h.innerHTML=getFleetHint();
+  const c1=$('th-c1'),c2=$('th-c2'),c3=$('th-c3');
+  if(fleetPeriod==='today'){if(c1)c1.textContent='Остаток бака';}
+  else{if(c1)c1.textContent='Расход ГСМ, л';}
+  if(c2)c2.textContent='Текущий пробег';
+  if(c3)c3.textContent='Остаток до ТО';
+}
+function renderFleet(){
+  const sr=($('fl-srch')?.value||'').toLowerCase();
+  const tf=$('fl-type')?.value||'',cf=$('fl-conn')?.value||'',ff=$('fl-fuel')?.value||'';
+  flFiltered=REG.filter(v=>{
+    if(sr&&!v.plate.toLowerCase().includes(sr)&&!v.brand.toLowerCase().includes(sr)&&!v.type.toLowerCase().includes(sr))return false;
+    if(tf&&v.type!==tf)return false;
+    if(ff&&v.fuel!==ff)return false;
+    if(cf&&getCS(v)!==cf)return false;
+    return true;
+  });
+  const tot=flFiltered.length,pgs=Math.ceil(tot/PG)||1;
+  if(flPgIdx>=pgs)flPgIdx=0;
+  const sl=flFiltered.slice(flPgIdx*PG,(flPgIdx+1)*PG);
+  $('fl-pg').textContent=`стр. ${flPgIdx+1}/${pgs}`;$('fl-total').textContent=`${tot} ТС`;
+  const ftv=document.getElementById('fl-total-vis');if(ftv)ftv.textContent=`Показано: ${tot} ТС`;
+  $('fl-prev').disabled=flPgIdx===0;$('fl-next').disabled=flPgIdx>=pgs-1;
+  const online=REG.filter(v=>getCS(v)==='online').length;
+  const offline=REG.length-online;
+  const moving=REG.filter(v=>getMS(v)==='moving').length;
+  const idle=REG.filter(v=>getMS(v)==='idle').length;
+  $('fleet-metrics').innerHTML=`
+    <div class="mc mc-green"><div class="lb"><i class="ti ti-list-numbers"></i>Всего ТС</div><div class="vl">${REG.length}</div><div class="sb">в реестре</div></div>
+    <div class="mc mc-green"><div class="lb"><span class="sdot s-ok" style="margin-right:3px"></span>В сети</div><div class="vl">${online||'—'}</div><div class="sb">сигнал 0–48ч</div></div>
+    <div class="mc mc-red"><div class="lb"><span class="sdot s-err" style="margin-right:3px"></span>Не в сети</div><div class="vl">${offline||'—'}</div><div class="sb">&gt;48ч без сигнала</div></div>
+    <div class="mc mc-blue"><div class="lb"><i class="ti ti-navigation"></i>В движении</div><div class="vl">${moving||'—'}</div><div class="sb">сейчас</div></div>
+    <div class="mc mc-amber"><div class="lb"><i class="ti ti-engine"></i>Холостой ход</div><div class="vl">${idle||'—'}</div><div class="sb">двиг. вкл</div></div>`;
+  if(Object.keys(gpsMap).length>0)$('fleet-live').style.display='inline-flex';
+  $('fleet-tbody').innerHTML=sl.map(v=>{
+    const g=gpsMap[v.plate],pd=periodData[v.plate];
+    const cs=getCS(v),ms=getMS(v);
+    const spd=g?.speed!=null?Math.round(g.speed)+' км/ч':'—';
+    const f=g?Math.round((g.fuel1||0)+(g.fuel2||0)):null;
+    const fStr=f!=null&&f>0?f+' л':'—';
+    const fPct=f&&f>0?Math.min(100,Math.round(f/(v.col==='light'?70:500)*100)):0;
+    const fCol=fPct<20?'var(--red)':fPct<40?'var(--amber)':'var(--green)';
+    const odo=pd?.odo!=null?pd.odo+' км':'—';
+    let col1='—';
+    if(fleetPeriod==='today'){col1=fStr+(fPct>0?`<div class="fl-bar"><div class="fl-fill" style="width:${fPct}%;background:${fCol}"></div></div>`:'');}
+    else{col1=pd?.fuel_l!=null?pd.fuel_l+' л':'—';}
+    const sig=g?.eventDate?fmtAgo(g.eventDate):'—';
+    // TO calculation for pickups
+    // odo = общий пробег за всё время (от 2020)
+    const odoInt = pd?.odo!=null ? Math.round(pd.odo) : null;
+    const toData = getNextTO(v, odoInt);
+    const odoStr = odoInt!=null ? odoInt.toLocaleString('ru-RU')+' км' : '—';
+    let toCell = '—';
+    if(toData){
+      const col=remColor(toData.rem);
+      toCell=`<span style="color:${col};font-weight:600">+${toData.rem.toLocaleString('ru-RU')} км</span><br><span style="font-size:9px;color:var(--t3)">след. ТО: ${toData.next.toLocaleString('ru-RU')} км</span>`;
     }
-    if(jwt){
-      await loadVehicles();
-      // Try new API endpoints from developers.omnicomm.ru
-      const newApiResult=await tryNewApi();
-      if(newApiResult){
-        console.log('New API worked!',newApiResult);
-      }
+    return`<tr style="${cs==='offline'?'opacity:.55':''}">
+      <td style="color:var(--t3)">${v.n}</td>
+      <td style="font-family:monospace;font-weight:700">${v.plate}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis">${v.brand} ${v.model}</td>
+      <td style="font-size:10px;color:var(--t2);max-width:90px;overflow:hidden;text-overflow:ellipsis">${v.type}</td>
+      <td>${v.fuel==='АИ-92'?'<span class="badge b-blue">АИ-92</span>':'<span class="badge b-amber">ДТ</span>'}</td>
+      <td>${cBadge(cs)}</td><td>${mBadge(ms)}</td>
+      <td class="num">${cs==='online'?spd:'—'}</td>
+      <td class="num">${col1}</td>
+      <td class="num" style="font-family:monospace">${odoStr}</td>
+      <td class="num" style="line-height:1.4">${toCell}</td>
+      <td class="sm">${sig}</td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--t3);padding:16px" colspan="12">Нет данных</td></tr>';
+}
+function flPg(d){const tot=flFiltered.length,pgs=Math.ceil(tot/PG)||1;flPgIdx=Math.max(0,Math.min(pgs-1,flPgIdx+d));renderFleet();}
+async function refreshFleet(){
+  if(!jwt)return;
+  // Try cache first for instant display
+  const cachedPD=cacheGet('period_'+fleetPeriod);
+  if(cachedPD&&Object.keys(cachedPD).length>10){
+    periodData=cachedPD;
+    renderFleet();updateFleetHint();
+    // Update in background
+    loadGPS().then(()=>{
+      const{fromTs,toTs}=getFD();
+      loadFleetStats(fromTs,toTs);
+    });
+    return;
+  }
+  showLoader('fleet','Подключение к Omnicomm...');
+  updateFleetHint();await loadGPS();
+  setLoaderMsg('fleet','GPS данные получены. Загрузка статистики...');
+  const{fromTs,toTs}=getFD();periodData={};
+  await loadFleetStats(fromTs,toTs);
+}
+
+// ── NAV & PERIOD ─────────────────────────────
+function goPage(name){
+  ['budget','expenses','gsm','fleet'].forEach(p=>{const el=$('page-'+p);if(el)el.style.display=p===name?'':'none';});const mapEl=$('page-map');if(mapEl)mapEl.style.display=name==='map'?'':'none';
+  document.querySelectorAll('.ntab').forEach((el,i)=>el.classList.toggle('active',['budget','expenses','gsm','fleet','map'][i]===name));
+  const budBar=$('pbar-budget'),genBar=$('pbar-general');
+  if(budBar)budBar.style.display=name==='budget'?'flex':'none';
+  if(genBar)genBar.style.display=(name==='expenses'||name==='gsm')?'flex':'none';
+  if(name==='budget')renderBudget();
+  if(name==='expenses'){updateGenPbarInfo();updateExpButtons();renderExp();}
+  if(name==='gsm'){updateGenPbarInfo();renderGsmMetrics();if(Object.keys(gsmData).length===0){const{fromTs,toTs}=getGenPD();loadGsmData(fromTs,toTs);}else renderGsmTable();}
+  if(name==='fleet'){updateFleetHint();refreshFleet();}
+  if(name==='map'){
+    setTimeout(()=>{initMaps();refreshMap();},150);
+  }
+}
+function setPeriod(p,btn){
+  const now=new Date();const m=now.getMonth();
+  document.querySelectorAll('#pbar-budget .pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  $('pdr').className='dr'+(p==='custom'?' show':'');
+  if(p==='month')      {periodFromMonth=m;periodToMonth=m;}
+  else if(p==='q1')    {periodFromMonth=0;periodToMonth=2;}
+  else if(p==='q2')    {periodFromMonth=3;periodToMonth=5;}
+  else if(p==='q3')    {periodFromMonth=6;periodToMonth=8;}
+  else if(p==='q4')    {periodFromMonth=9;periodToMonth=11;}
+  else if(p==='year')  {periodFromMonth=0;periodToMonth=11;}
+  else if(p==='custom'){$('pdr-m-from').value=periodFromMonth;$('pdr-m-to').value=periodToMonth;return;}
+  updatePbarInfo();refresh();
+}
+function applyMonthRange(){
+  periodFromMonth=parseInt($('pdr-m-from').value)||0;
+  periodToMonth  =parseInt($('pdr-m-to').value)||0;
+  if(periodToMonth<periodFromMonth)periodToMonth=periodFromMonth;
+  updatePbarInfo();refresh();
+}
+function updatePbarInfo(){
+  const names=['Янв','Фев','Мар','Апр','Май','Июн','Июл','Авг','Сен','Окт','Ноя','Дек'];
+  const n=periodToMonth-periodFromMonth+1;
+  const info=periodFromMonth===periodToMonth?`${names[periodFromMonth]} ${YEAR}`:`${names[periodFromMonth]}–${names[periodToMonth]} ${YEAR} (${n} мес.)`;
+  const el=$('pbar-info');if(el)el.textContent=info;
+}
+function setFleetP(p,btn){fleetPeriod=p;document.querySelectorAll('#page-fleet .pbtn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');$('fleet-dr').className='dr'+(p==='custom'?' show':'');refreshFleet();}
+function applyFleetPeriod(){refreshFleet();}
+function setGenPeriod(p,btn){
+  genPeriod=p;
+  document.querySelectorAll('#pbar-general .pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const cdr=$('gpdr');if(cdr)cdr.className='dr'+(p==='custom'?' show':'');
+  updateGenPbarInfo();
+  const pg=['budget','expenses','gsm','fleet'].find(p=>$('page-'+p)?.style.display!=='none');
+  if(pg==='expenses')renderExp();
+  if(pg==='gsm'){const{fromTs,toTs}=getGenPD();gsmData={};loadGsmData(fromTs,toTs);}
+}
+function applyGenPeriod(){genFrom=$('gpdr-from').value;genTo=$('gpdr-to').value;if(genFrom&&genTo)setGenPeriod('custom',document.getElementById('gp-custom'));}
+function updateGenPbarInfo(){
+  const{from,to}=getGenPD();
+  const fmt=d=>d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'2-digit'});
+  const el=$('gpbar-info');
+  if(el)el.textContent=genPeriod==='today'?'Сегодня':genPeriod==='week'?'7 дней':`${fmt(from)} — ${fmt(to)}`;
+}
+function refresh(){const pg=['budget','expenses','gsm','fleet'].find(p=>$('page-'+p)?.style.display!=='none')||'budget';goPage(pg);}
+
+// ── PIN & CRUD ───────────────────────────────
+function askPin(action){pinAction=action;$('pin-err').style.display='none';$('pin-inp').value='';$('pin-modal').classList.add('open');setTimeout(()=>$('pin-inp').focus(),100);}
+function checkPin(){
+  if($('pin-inp').value===PIN){
+    $('pin-modal').classList.remove('open');
+    if(pinAction==='add'){$('f-date').value=new Date().toISOString().substring(0,10);$('exp-modal').classList.add('open');}
+    if(pinAction==='gsm'){$('gi-date').value=new Date().toISOString().substring(0,10);$('gsm-modal').classList.add('open');}
+  }else{$('pin-err').style.display='block';$('pin-inp').value='';}
+}
+function editExpDesc(id, val){
+  const e=expenses.find(x=>x.id===id);
+  if(e) e.desc=val;
+}
+function editExpType(id, val){
+  const e=expenses.find(x=>x.id===id);
+  if(e) e.type=val;
+}
+function saveExp(){
+  const date=$('f-date').value,amt=parseFloat($('f-amt').value)||0;
+  if(!date||!amt){alert('Заполните дату и сумму');return;}
+  const rawPl=$('f-plates').value.trim();
+  const newExp={id:'e'+Date.now(),date,type:$('f-type').value,contr:$('f-contr').value.trim(),amt,desc:$('f-desc').value.trim(),plates:rawPl?rawPl.split(/[,\n]+/).map(p=>p.trim()).filter(Boolean):[]};
+  expenses.push(newExp);
+  if(srvOnline) srv.saveExpense(newExp).catch(e=>console.warn('[Сервер] Не сохранена затрата:',e.message));
+  $('exp-modal').classList.remove('open');
+  ['f-date','f-amt','f-contr','f-desc','f-plates'].forEach(id=>$(id).value='');
+  renderExp();renderBudget();
+}
+function delExp(id){if(!confirm('Удалить?'))return;expenses=expenses.filter(e=>e.id!==id);if(srvOnline)srv.deleteExpense(id).catch(e=>console.warn('[Сервер] Не удалена затрата:',e.message));renderExp();renderBudget();}
+function calcG(){const l=parseFloat($('gi-liters').value)||0,p=parseFloat($('gi-ppl').value)||0;$('gi-amt').value=Math.round(l*p)||'';}
+function saveGsm(){
+  const date=$('gi-date').value,l=parseFloat($('gi-liters').value)||0,p=parseFloat($('gi-ppl').value)||0;
+  if(!date||!l||!p){alert('Заполните дату, литры и цену');return;}
+  const newGsm={id:'g'+Date.now(),date,bill:$('gi-bill').value,supp:$('gi-supp').value,type:$('gi-type').value,liters:l,ppl:p,amt:Math.round(l*p)};
+  gsmInvoices.push(newGsm);
+  if(srvOnline) srv.saveGsmInvoice(newGsm).catch(e=>console.warn('[Сервер] Не сохранён счёт ГСМ:',e.message));
+  $('gsm-modal').classList.remove('open');
+  ['gi-date','gi-bill','gi-supp','gi-liters','gi-ppl','gi-amt'].forEach(id=>$(id).value='');
+  renderGsmTable();
+}
+function delGsm(id){if(!confirm('Удалить?'))return;gsmInvoices=gsmInvoices.filter(g=>g.id!==id);if(srvOnline)srv.deleteGsmInvoice(id).catch(e=>console.warn('[Сервер] Не удалён счёт ГСМ:',e.message));renderGsmTable();}
+
+// ── EXPENSES CHARTS ──────────────────────────
+function renderExpCharts(){
+  const exps=expenses;
+  const gl='rgba(255,255,255,.05)',tc='#484f58';
+
+  // Chart by month
+  const byMonth=ML.map((_,mi)=>{
+    const mS=new Date(YEAR,mi,1),mE=new Date(YEAR,mi+1,0,23,59,59);
+    return exps.filter(e=>{const d=new Date(e.date);return d>=mS&&d<=mE;}).reduce((s,e)=>s+e.amt,0);
+  });
+  if(charts.expMonth){charts.expMonth.destroy();charts.expMonth=null;}
+  const ctx=document.getElementById('exp-month-chart');
+  if(ctx) charts.expMonth=new Chart(ctx,{type:'bar',data:{labels:ML,datasets:[{
+    label:'Затраты',data:byMonth.map(v=>v>0?Math.round(v/1e6*10)/10:null),
+    backgroundColor:'rgba(163,113,247,.7)',borderColor:'#a371f7',borderWidth:1,borderRadius:3,borderSkipped:false
+  }]},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>`${ctx.parsed.y} млн тг`}}},
+    scales:{x:{grid:{display:false},ticks:{color:tc,font:{size:10}}},
+            y:{grid:{color:gl},ticks:{color:tc,font:{size:10},callback:v=>v+'млн'}}}}});
+
+  // Top-5 by amount
+  const byContr={};
+  exps.forEach(e=>{byContr[e.contr]=(byContr[e.contr]||0)+e.amt;});
+  const top5=Object.entries(byContr).sort((a,b)=>b[1]-a[1]).slice(0,5);
+  const maxAmt=top5[0]?.[1]||1;
+  const colors=['#a371f7','#388bfd','#3fb950','#d29922','#f85149'];
+  const el=document.getElementById('exp-top5');
+  if(el) el.innerHTML=top5.map(([name,amt],i)=>`
+    <div style="margin-bottom:8px">
+      <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px">
+        <span style="color:var(--t2);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${name}</span>
+        <span style="font-family:monospace;font-weight:600;color:${colors[i]}">${(amt/1e6).toFixed(2)} млн</span>
+      </div>
+      <div style="height:6px;background:var(--s3);border-radius:99px;overflow:hidden">
+        <div style="height:100%;width:${Math.round(amt/maxAmt*100)}%;background:${colors[i]};border-radius:99px"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── GSM ANOMALIES & NORM PER 100KM ───────────
+// Нормы расхода л/100км
+const FUEL_NORMS={
+  'Пикап':12,
+  'Седельный тягач':35,
+  'Манипулятор КМУ':28,
+  'Бульдозер':25,
+  'Экскаватор-погрузчик':20,
+  'Установка ГНБ':18,
+  'Трактор-траншеекопатель':15,
+  'Траншеекопатель':15,
+};
+// Порог аномалии: превышение нормы на X%
+const ANOMALY_THRESHOLD=30;
+
+function calcNorm100(v, c_l, odoKm){
+  if(!c_l||!odoKm||odoKm<10) return null;
+  return Math.round(c_l/odoKm*100*10)/10;
+}
+
+function renderGsmAnomalies(){
+  const anomalies=[];
+  REG.forEach(v=>{
+    const d=gsmData[v.plate];if(!d?.c_l||!d?.period_odo||d.period_odo<10) return;
+    const norm=FUEL_NORMS[v.type];if(!norm) return;
+    const actual100=Math.round(d.c_l/d.period_odo*100*10)/10;
+    if(actual100>norm*(1+ANOMALY_THRESHOLD/100)){
+      anomalies.push({plate:v.plate,type:v.type,brand:v.brand,norm,actual:actual100,diff:Math.round(actual100-norm)});
     }
-    renderOverview();
-    renderFleetTbl();
-    document.getElementById('lupd').textContent='Обновлено: '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-  }catch(e){
-    console.error(e);
-    setConn(false,'Ошибка');
-    showErr('Ошибка загрузки: '+e.message);
-    renderOverview();
-  }finally{
-    document.getElementById('ov').style.display='none';
+  });
+  const card=document.getElementById('gsm-anomaly-card');
+  const el=document.getElementById('gsm-anomalies');
+  if(!card||!el) return;
+  if(anomalies.length===0){card.style.display='none';return;}
+  card.style.display='block';
+  el.innerHTML=`<div style="font-size:11px;color:var(--t2);margin-bottom:8px">Обнаружено ${anomalies.length} машин с расходом выше нормы на ${ANOMALY_THRESHOLD}%+</div>`+
+    anomalies.slice(0,10).map(a=>`
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:6px 8px;background:var(--red-bg);border:.5px solid rgba(248,81,73,.2);border-radius:var(--r);margin-bottom:5px;font-size:11px">
+      <span style="font-family:monospace;font-weight:700;color:var(--red)">${a.plate}</span>
+      <span style="color:var(--t2)">${a.brand} · ${a.type}</span>
+      <span>Норма: <b>${a.norm}</b> л/100км</span>
+      <span style="color:var(--red);font-weight:600">Факт: ~${a.actual} л/100км (+${a.diff}л)</span>
+    </div>`).join('');
+}
+
+// ── EMAIL NOTIFICATIONS ───────────────────────
+const EMAILJS_SERVICE  = 'autopark_service';
+const EMAILJS_TEMPLATE = 'template_kap036l';
+const EMAILJS_KEY      = 'oOL47cS1HQUgkndop';
+const NOTIFY_EMAILS    = ['mirasabdramanov31@gmail.com','denisrybchuk@gmail.com'];
+const NOTIFY_NAMES     = ['Мирас','Денис'];
+let emailjsReady=false;
+
+function initEmailJS(){
+  if(typeof emailjs!=='undefined'&&!emailjsReady){
+    emailjs.init({publicKey:EMAILJS_KEY});
+    emailjsReady=true;
+    console.log('EmailJS ready');
   }
 }
 
-loadAll();
-setInterval(()=>{ if(jwt) loadAll(); },5*60*1000);
+async function sendToEmail(toEmail,toName,message){
+  initEmailJS();
+  if(!emailjsReady){console.warn('EmailJS not ready');return false;}
+  try{
+    const res=await emailjs.send(EMAILJS_SERVICE,EMAILJS_TEMPLATE,{
+      name:'Автопарк Фаворит',
+      to_name:toName,
+      to_email:toEmail,
+      email:toEmail,
+      message:message,
+    });
+    console.log('Email sent:',res.status,toEmail);
+    return true;
+  }catch(e){
+    console.error('Email error:',e);
+    return false;
+  }
+}
+
+async function sendToNotification(message){
+  initEmailJS();
+  const results=await Promise.all(
+    NOTIFY_EMAILS.map((email,i)=>sendToEmail(email,NOTIFY_NAMES[i]||'Сотрудник',message))
+  );
+  return results.some(r=>r);
+}
+
+async function checkToNotifications(){
+  const alerts=[];
+  REG.forEach(v=>{
+    const pd=periodData[v.plate];if(!pd?.odo) return;
+    const toData=getNextTO(v,Math.round(pd.odo));if(!toData) return;
+    if(toData.rem<=500) alerts.push({plate:v.plate,brand:v.brand,model:v.model,rem:toData.rem,next:toData.next});
+  });
+
+  if(alerts.length>0){
+    // Показываем баннер
+    const existing=document.getElementById('to-banner');
+    if(!existing){
+      const banner=document.createElement('div');
+      banner.id='to-banner';
+      banner.style.cssText='position:fixed;bottom:20px;right:20px;background:var(--red-bg);border:.5px solid var(--red);border-radius:var(--rl);padding:12px 16px;z-index:300;max-width:320px;font-size:11px;box-shadow:0 4px 20px rgba(0,0,0,.4)';
+      banner.innerHTML=`<div style="color:var(--red);font-weight:600;margin-bottom:6px;font-size:12px">⚠️ Срочно на ТО — ${alerts.length} машин</div>`+
+        alerts.slice(0,5).map(a=>`<div style="color:var(--t2);padding:2px 0">${a.plate} <span style="color:var(--t3)">${a.brand}</span> — осталось <b style="color:var(--red)">${a.rem} км</b></div>`).join('')+
+        `<div style="display:flex;gap:6px;margin-top:10px">
+          <button onclick="sendTOEmails()" style="flex:1;padding:5px;background:var(--red);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-size:10px;font-family:inherit">📧 Отправить на email</button>
+          <button onclick="this.parentElement.parentElement.remove()" style="padding:5px 8px;background:none;border:.5px solid var(--b2);color:var(--t3);border-radius:var(--r);cursor:pointer;font-size:10px">✕</button>
+        </div>`;
+      document.body.appendChild(banner);
+    }
+
+    // Автоотправка на email
+    const msg=`Требуется техническое обслуживание для следующих транспортных средств:
+
+`+
+      alerts.map(a=>'- '+a.plate+' ('+a.brand+' '+a.model+') | Осталось: '+a.rem+' км до ТО | Следующее ТО: '+a.next.toLocaleString('ru-RU')+' км').join('\n\n')+
+      `
+
+Автопарк ТОО СК Фаворит Инжиниринг`;
+    await sendToNotification(msg);
+  }
+}
+
+async function sendTOEmails(){
+  const alerts=[];
+  REG.forEach(v=>{
+    const pd=periodData[v.plate];if(!pd?.odo) return;
+    const toData=getNextTO(v,Math.round(pd.odo));if(!toData) return;
+    if(toData.rem<=1500) alerts.push({plate:v.plate,brand:v.brand,model:v.model,rem:toData.rem,next:toData.next});
+  });
+  if(!alerts.length){alert('Нет машин требующих ТО');return;}
+  const msg=`Требуется техническое обслуживание:
+
+`+
+    alerts.map(a=>'- '+a.plate+' ('+a.brand+' '+a.model+') | Осталось: '+a.rem+' км | След. ТО: '+a.next.toLocaleString('ru-RU')+' км').join('\n\n')+
+    `
+
+Дата: ${new Date().toLocaleDateString('ru-RU')}
+Автопарк ТОО СК Фаворит Инжиниринг`;
+  const ok=await sendToNotification(msg);
+  if(ok) alert('✅ Уведомления отправлены на email');
+  else alert('❌ Ошибка отправки. Проверьте консоль.');
+}
+
+// Тестовое уведомление
+async function sendTestEmail(){
+  initEmailJS();
+  const msg=[
+    'ТЕСТОВОЕ УВЕДОМЛЕНИЕ',
+    '',
+    'Это тест системы уведомлений дашборда Автопарк.',
+    '',
+    'Пример уведомления о ТО:',
+    '- 901CZ01 (CHANGAN HUNTER PLUS)',
+    '  Осталось: 450 км до ТО',
+    '  Следующее ТО: 75 000 км',
+    '',
+    'Система уведомлений работает корректно.',
+    '',
+    'Автопарк ТОО СК Фаворит Инжиниринг'
+  ].join('\n');
+  const ok=await sendToNotification(msg);
+  if(ok) alert('Тестовое письмо отправлено на: '+NOTIFY_EMAILS.join(', '));
+  else alert('Ошибка отправки. Проверьте консоль.');
+}
+
+// ── MAP ──────────────────────────────────────
+let mainMap=null, routeMap=null, mapView='all', mapMarkers=[], routeLayer=null;
+
+function initMaps(){
+  if(!document.getElementById('map-container')) return;
+  if(!mainMap){
+    mainMap=L.map('map-container',{zoomControl:true}).setView([48.0,67.0],5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap',maxZoom:19,
+    }).addTo(mainMap);
+  }
+  if(!routeMap){
+    routeMap=L.map('route-map',{zoomControl:true}).setView([48.0,67.0],5);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap',maxZoom:19,
+    }).addTo(routeMap);
+  }
+  // Populate multi-select
+  const sel=document.getElementById('route-vehicles');
+  if(sel&&sel.options.length===0){
+    REG.forEach(v=>{
+      const o=document.createElement('option');
+      o.value=v.plate;
+      o.textContent=v.plate+' · '+v.brand+' '+v.model;
+      sel.appendChild(o);
+    });
+  }
+  // Default dates
+  const today=new Date().toISOString().substring(0,10);
+  const rf=document.getElementById('route-from');
+  const rt=document.getElementById('route-to');
+  if(rf&&!rf.value) rf.value=today;
+  if(rt&&!rt.value) rt.value=today;
+}
+
+function setRouteQuick(period){
+  const today=new Date();
+  const fmt=d=>d.toISOString().substring(0,10);
+  const rf=document.getElementById('route-from');
+  const rt=document.getElementById('route-to');
+  if(!rf||!rt) return;
+  if(period==='today'){rf.value=rt.value=fmt(today);}
+  else if(period==='yesterday'){
+    const y=new Date(today);y.setDate(y.getDate()-1);
+    rf.value=rt.value=fmt(y);
+  } else if(period==='week'){
+    const w=new Date(today);w.setDate(w.getDate()-6);
+    rf.value=fmt(w);rt.value=fmt(today);
+  }
+}
+
+function getMarkerColor(v){
+  const cs=getCS(v),ms=getMS(v);
+  if(cs==='offline') return '#484f58';
+  if(ms==='moving') return '#388bfd';
+  if(ms==='idle') return '#d29922';
+  return '#3fb950';
+}
+function getMarkerIcon(v){
+  const col=getMarkerColor(v);
+  const emoji=v.type==='Пикап'?'🚙':v.type==='Седельный тягач'?'🚛':v.type==='Манипулятор КМУ'?'🏗':v.type==='Бульдозер'?'🚜':'⚙️';
+  return L.divIcon({
+    html:`<div style="background:${col};border:2px solid #fff;border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,.4)">${emoji}</div>`,
+    iconSize:[28,28],iconAnchor:[14,14],popupAnchor:[0,-14],className:''
+  });
+}
+
+function refreshMap(){
+  if(!mainMap) return;
+  // Clear old markers
+  mapMarkers.forEach(m=>mainMap.removeLayer(m));
+  mapMarkers=[];
+  const tf=document.getElementById('map-type-filter')?.value||'';
+  const vehicles=REG.filter(v=>{
+    if(tf&&v.type!==tf) return false;
+    if(mapView==='online'&&getCS(v)!=='online') return false;
+    const g=gpsMap[v.plate];
+    return g&&g.lat&&g.lon;
+  });
+
+  const online=REG.filter(v=>getCS(v)==='online').length;
+  const offline=REG.length-online;
+  const moving=REG.filter(v=>getMS(v)==='moving').length;
+  const idle=REG.filter(v=>getMS(v)==='idle').length;
+  const el=id=>document.getElementById(id);
+  if(el('map-online-cnt'))el('map-online-cnt').textContent=online;
+  if(el('map-offline-cnt'))el('map-offline-cnt').textContent=offline;
+  if(el('map-moving-cnt'))el('map-moving-cnt').textContent=moving;
+  if(el('map-idle-cnt'))el('map-idle-cnt').textContent=idle;
+  if(el('map-live')&&online>0)el('map-live').style.display='inline-flex';
+
+  if(mapView==='heat'){
+    // Тепловая карта — кружки с радиусом по активности
+    vehicles.forEach(v=>{
+      const g=gpsMap[v.plate];if(!g?.lat)return;
+      const cs=getCS(v);
+      const circle=L.circleMarker([g.lat,g.lon],{
+        radius:cs==='online'?14:8,
+        fillColor:getMarkerColor(v),fillOpacity:0.35,
+        color:getMarkerColor(v),weight:1,opacity:0.7
+      }).addTo(mainMap);
+      circle.bindPopup(`<b>${v.plate}</b><br>${v.brand} ${v.model}<br>${v.type}`);
+      mapMarkers.push(circle);
+    });
+  } else {
+    vehicles.forEach(v=>{
+      const g=gpsMap[v.plate];if(!g?.lat)return;
+      const cs=getCS(v),ms=getMS(v);
+      const spd=g.speed!=null?Math.round(g.speed)+' км/ч':'—';
+      const fuel=g.fuel1!=null?Math.round(g.fuel1+( g.fuel2||0))+' л':'—';
+      const marker=L.marker([g.lat,g.lon],{icon:getMarkerIcon(v)}).addTo(mainMap);
+      marker.bindPopup(`
+        <div style="font-family:system-ui;min-width:160px">
+          <b style="font-size:13px">${v.plate}</b><br>
+          <span style="color:#666;font-size:11px">${v.brand} ${v.model}</span><br><br>
+          📍 ${v.type}<br>
+          ⚡ ${cs==='online'?'В сети':'Не в сети'}<br>
+          🚦 ${ms==='moving'?'Едет':ms==='idle'?'Холостой':'Стоянка'}<br>
+          🚀 ${spd}<br>
+          ⛽ ${fuel}
+        </div>`);
+      mapMarkers.push(marker);
+    });
+    // Fit bounds
+    if(mapMarkers.length>0){
+      const group=L.featureGroup(mapMarkers);
+      mainMap.fitBounds(group.getBounds().pad(0.1));
+    }
+  }
+}
+
+function setMapView(view, btn){
+  mapView=view;
+  document.querySelectorAll('#page-map .pbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  refreshMap();
+}
+
+async function loadRoute(){
+  const sel=document.getElementById('route-vehicles');
+  const plates=[...sel?.selectedOptions||[]].map(o=>o.value).slice(0,5);
+  const fromDate=document.getElementById('route-from')?.value;
+  const toDate  =document.getElementById('route-to')?.value;
+  const info=document.getElementById('route-info');
+
+  if(!plates.length){if(info)info.textContent='⚠️ Выберите хотя бы одну машину';return;}
+  if(!fromDate||!toDate){if(info)info.textContent='⚠️ Укажите период';return;}
+  if(plates.length>5){if(info)info.textContent='⚠️ Максимум 5 машин';return;}
+
+  if(info)info.textContent=`⏳ Загрузка маршрутов для ${plates.length} машин...`;
+
+  // Clear old routes
+  if(routeLayer){
+    if(Array.isArray(routeLayer))routeLayer.forEach(l=>routeMap.removeLayer(l));
+    else routeMap.removeLayer(routeLayer);
+    routeLayer=null;
+  }
+  routeMap.eachLayer(l=>{if(l instanceof L.Polyline||l instanceof L.Marker)routeMap.removeLayer(l);});
+
+  const fromTs=Math.floor(new Date(fromDate)/1000);
+  const toTs  =Math.floor(new Date(toDate+'T23:59:59')/1000);
+
+  // Route colors per vehicle
+  const COLORS=['#388bfd','#3fb950','#f85149','#d29922','#a371f7'];
+  const allLayers=[];
+  let totalPoints=0;
+
+  await Promise.all(plates.map(async(plate,idx)=>{
+    const tid=Object.entries(TID_MAP).find(([,p])=>p===plate)?.[0];
+    if(!tid) return;
+    try{
+      const res=await apiR('GET',`/ls/api/v1/reports/track/${tid}?timeBegin=${fromTs}&timeEnd=${toTs}`);
+      if(res.code!==200||res.data?.status?.code!==0) return;
+      const track=res.data.track||[];
+      const points=track.filter(p=>p.latitude&&p.longitude).map(p=>[p.latitude,p.longitude]);
+      if(!points.length) return;
+      totalPoints+=points.length;
+      const col=COLORS[idx%COLORS.length];
+      // Draw route
+      const poly=L.polyline(points,{color:col,weight:3,opacity:0.85}).addTo(routeMap);
+      poly.bindPopup(`<b>${plate}</b><br>${points.length} точек`);
+      // Start marker
+      L.circleMarker(points[0],{radius:7,fillColor:col,fillOpacity:1,color:'#fff',weight:2}).addTo(routeMap).bindPopup(`${plate} — начало`);
+      // End marker
+      L.circleMarker(points[points.length-1],{radius:7,fillColor:'#f85149',fillOpacity:1,color:'#fff',weight:2}).addTo(routeMap).bindPopup(`${plate} — конец`);
+      allLayers.push(poly);
+    }catch(e){console.error('Track error',plate,e);}
+  }));
+
+  routeLayer=allLayers;
+  if(allLayers.length>0){
+    const group=L.featureGroup(allLayers);
+    routeMap.fitBounds(group.getBounds().pad(0.1));
+    if(info)info.innerHTML=`✅ ${plates.length} машин · ${fromDate}${fromDate!==toDate?' — '+toDate:''} · ${totalPoints.toLocaleString('ru-RU')} точек GPS`;
+  } else {
+    if(info)info.textContent='⚠️ Нет данных о маршруте за этот период';
+  }
+}
+
+function clearRoute(){
+  if(routeLayer&&routeMap){routeMap.removeLayer(routeLayer);routeLayer=null;}
+  document.getElementById('route-info').textContent='';
+}
+
+// ── SECTION LOADERS ──────────────────────────
+function showLoader(id, msg='Загрузка...'){
+  const el=document.getElementById(id+'-loader');
+  if(!el) return;
+  el.classList.remove('hidden');
+  const m=document.getElementById(id+'-loader-msg');
+  if(m) m.textContent=msg;
+  setLoaderProgress(id,0,'');
+}
+function hideLoader(id){
+  const el=document.getElementById(id+'-loader');
+  if(el) el.classList.add('hidden');
+}
+function setLoaderMsg(id,msg){
+  const el=document.getElementById(id+'-loader-msg');
+  if(el) el.textContent=msg;
+}
+function setLoaderProgress(id,pct,text){
+  const bar=document.getElementById(id+'-bar');
+  const prog=document.getElementById(id+'-loader-progress');
+  if(bar) bar.style.width=Math.min(pct,100)+'%';
+  if(prog) prog.textContent=text||'';
+}
+
+
+// ── GOOGLE SHEETS LOADER (Apps Script) ──────
+// Apps Script прокси — работает из file://, https://, LAN
+// Данные в реальном времени из Google Sheets "счета"
+const APPS_SCRIPT_URL = '/.netlify/functions/sheets-proxy'; // прокси без CORS
+let sheetsLoaded = false;
+let sheetsRefreshTimer = null;
+
+async function loadExpensesFromSheets(){
+  const ss = document.getElementById('sheets-status');
+  if(ss) ss.innerHTML='<span style="color:var(--t3);font-size:11px">⏳ Загрузка таблицы...</span>';
+  console.log('[Sheets] Запрос к Apps Script...');
+  try{
+    // redirect:follow нужен — Apps Script делает редирект перед ответом
+    const res = await fetch(APPS_SCRIPT_URL, {redirect:'follow'});
+    console.log('[Sheets] Статус ответа:', res.status, res.url);
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const text = await res.text();
+    console.log('[Sheets] Ответ (первые 300 символов):', text.substring(0,300));
+    let json;
+    try { json = JSON.parse(text); } catch(pe){ throw new Error('Не JSON: ' + text.substring(0,100)); }
+    if(!json.ok) throw new Error('Apps Script вернул ok=false: ' + JSON.stringify(json).substring(0,200));
+
+    const rows = json.rows || [];
+    if(!rows.length){
+      if(ss) ss.innerHTML='<span style="color:var(--amber)">⚠️ Таблица пуста</span>';
+      return;
+    }
+
+    const _usedLocalIds = new Set();
+    const newExpenses = rows.map((row, i) => {
+      // Apps Script возвращает: date(YYYY-MM-DD), type, contr, amt, proj, tech
+      let amt = parseFloat(String(row.amt||0).replace(/[^\d.]/g,'')) || 0;
+
+      // Если сумма пустая — fallback на локальные данные по дате+контрагент
+      if(!amt){
+        const m = expenses.find(e =>
+          !e.fromSheet && !_usedLocalIds.has(e.id) &&
+          e.date === row.date && e.contr === (row.contr||'').trim()
+        );
+        if(m){ amt = m.amt; _usedLocalIds.add(m.id); }
+      }
+      if(!amt) return null;
+
+      const techRaw = String(row.tech||'');
+      const plates = techRaw.split(/[,;\n]+/).map(s=>s.trim())
+        .filter(s => s.length>=4 && /\d/.test(s) && /[A-Za-zА-ЯЁа-яё]/i.test(s));
+
+      return {
+        id: 'gs_' + i,
+        date: row.date,
+        type: (row.type||'Прочее').trim(),
+        contr: (row.contr||'—').trim(),
+        amt: Math.round(amt),
+        desc: techRaw || (row.type||'—'),
+        plates,
+        fromSheet: true
+      };
+    }).filter(Boolean);
+
+    if(newExpenses.length > 0){
+      // Сохраняем ручные записи которых нет в таблице
+      const manual = expenses.filter(e => !e.fromSheet &&
+        !newExpenses.some(n => n.date===e.date && n.contr===e.contr && n.amt===e.amt));
+      expenses = [...newExpenses, ...manual];
+      sheetsLoaded = true;
+      const upd = json.updated
+        ? new Date(json.updated).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})
+        : '';
+      if(ss) ss.innerHTML=`<span style="color:var(--green)">✅ Таблица · ${newExpenses.length} записей${upd?' · '+upd:''}</span>`;
+      console.log('[Sheets] Загружено:', newExpenses.length, 'записей');
+      renderExp();
+      renderBudget();
+    } else {
+      if(ss) ss.innerHTML='<span style="color:var(--amber)">⚠️ Нет строк с суммой</span>';
+    }
+  } catch(e) {
+    console.error('[Sheets] Ошибка:', e.message);
+    if(ss) ss.innerHTML=`<span style="color:var(--red)" title="${e.message}">❌ Таблица недоступна</span>`;
+    // Повтор через 30 сек при сетевой ошибке
+    setTimeout(()=>{ if(currentUserEmail) loadExpensesFromSheets(); }, 30000);
+  }
+}
+
+// ── LOAD ALL ─────────────────────────────────
+async function loadAll(){
+  $('ov').style.display='flex';
+
+  // 1. Google Sheets — независимо от всего, запускаем первым
+  loadExpensesFromSheets();
+
+  // 2. Сервер автопарка (если установлен)
+  try{
+    await checkServer();
+    if(srvOnline){
+      const loaded = await srv.loadAll();
+      if(loaded){ renderExp(); renderBudget(); renderGsmTable(); }
+    }
+  }catch(e){ console.warn('[Сервер]', e.message); }
+
+  // 3. Omnicomm GPS — независимый блок, не влияет на Sheets
+  try{
+    if(!jwt){ const ok=await doAuth(); if(!ok) setConn(false,'Ошибка авторизации Omnicomm'); }
+    if(jwt){
+      await loadGPS();
+      const m=Object.keys(gpsMap).length;
+      setConn(m>0, m>0?`Omnicomm · ${m} машин`:'GPS: нет данных');
+      if(document.getElementById('page-map')?.style.display!=='none') refreshMap();
+    }
+  }catch(e){
+    console.warn('[Omnicomm]', e.message);
+    setConn(false,'Omnicomm недоступен');
+  }
+
+  renderBudget(); renderExp();
+  $('lupd').textContent='Обн: '+new Date().toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+  $('ov').style.display='none';
+}
+(()=>{
+  initEmailJS();
+  const m=new Date().getMonth();
+  periodFromMonth=m;periodToMonth=m;
+  updatePbarInfo();
+  const b=$('pbar-budget'),g=$('pbar-general');
+  if(b)b.style.display='flex';if(g)g.style.display='none';
+  const gm=$('gp-month');if(gm)gm.classList.add('active');
+})();
+// ── GOOGLE AUTH ──────────────────────────────
+// Разрешённые email адреса
+const ALLOWED_EMAILS = [
+  'mirasabdramanov31@gmail.com',
+  'adina.akimkhanova@gmail.com',
+  'denisrybchuk@gmail.com',
+  'alexsandr8195@gmail.com',
+  'amanov.amx@gmail.com',
+  'nurkanov171@gmail.com',
+];
+
+// Текущий пользователь
+let currentUserEmail = null;
+const CAN_ADD_UNPLANNED = ['adina.akimkhanova@gmail.com'];
+const CAN_EDIT = ['adina.akimkhanova@gmail.com','mirasabdramanov31@gmail.com'];
+
+
+function handleGoogleLogin(response){
+  try{
+    // Декодируем JWT токен от Google (base64url → base64 → JSON)
+    const parts = response.credential.split('.');
+    const base64url = parts[1];
+    // Заменяем base64url символы на стандартные base64
+    const base64 = base64url.replace(/-/g,'+').replace(/_/g,'/');
+    const pad = base64.length % 4;
+    const padded = pad ? base64 + '='.repeat(4-pad) : base64;
+    const decoded = JSON.parse(atob(padded));
+    const email = decoded.email;
+
+    console.log('Google email:', email);
+
+    if(ALLOWED_EMAILS.includes(email.toLowerCase())){
+      // Доступ разрешён
+      currentUserEmail = email;
+      document.getElementById('auth-screen').style.display='none';
+      document.getElementById('auth-err').style.display='none';
+      loadAll();
+    } else {
+      // Доступ запрещён
+      const errEl=document.getElementById('auth-err');
+      errEl.style.display='block';
+      errEl.textContent=`⛔ Нет доступа для ${email}. Обратитесь к администратору.`;
+    }
+  }catch(e){
+    console.error('Auth error:', e);
+    const errEl=document.getElementById('auth-err');
+    errEl.style.display='block';
+    errEl.textContent='⛔ Ошибка входа. Попробуйте ещё раз.';
+  }
+}
+
+// НЕ вызываем loadAll() автоматически — только после входа
+// GPS обновление каждые 5 минут (только если авторизован в Omnicomm)
+setInterval(()=>{
+  if(!currentUserEmail) return;
+  if(jwt) loadGPS().then(()=>{ renderFleet(); if(document.getElementById('page-map')?.style.display!=='none') refreshMap(); });
+}, 5*60*1000);
+// Google Sheets обновление каждые 3 минуты (независимо от Omnicomm)
+setInterval(()=>{
+  if(!currentUserEmail) return;
+  loadExpensesFromSheets();
+}, 3*60*1000);
+// Автосинхронизация данных с сервером каждые 10 минут
+setInterval(()=>{ if(srvOnline) srv.syncAll(); }, 10*60*1000);
 </script>
 </body>
 </html>

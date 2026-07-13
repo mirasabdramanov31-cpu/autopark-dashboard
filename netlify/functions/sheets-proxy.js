@@ -3,7 +3,8 @@ const https = require('https');
 exports.handler = async function(event, context) {
   const SHEET_ID = '1327sJpPvIZpBBeYlptEqmsp1PqVujU4zq69VqDO9m7k';
   const API_KEY  = 'AIzaSyCmJ74BkRMz_OMcd3GELToOSqQIDmLmsXg';
-  const RANGE    = encodeURIComponent("'счета'!A4:H");
+  // Читаем с B2:G чтобы пропустить пустую колонку A
+  const RANGE    = encodeURIComponent("'счета'!B2:G");
   
   const url = `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${RANGE}?key=${API_KEY}&valueRenderOption=UNFORMATTED_VALUE&dateTimeRenderOption=FORMATTED_STRING`;
 
@@ -16,18 +17,20 @@ exports.handler = async function(event, context) {
           const json = JSON.parse(data);
           const rawRows = json.values || [];
           
-          // Структура таблицы (A=0):
-          // A(0)=№ | B(1)=Дата | C(2)=Статья | D(3)=Контрагент
-          // E(4)=Сумма | F(5)=Проект | G(6)=Разбивка по г/н | H(7)=...
+          // Структура B2:G (индексы 0-5):
+          // 0=Дата(B) | 1=Статья(C) | 2=Контрагент(D)
+          // 3=Сумма(E) | 4=Проект(F) | 5=Разбивка г/н(G)
 
           const rows = [];
-          rawRows.forEach(row => {
-            const dateVal = row[1]; // B - Дата
+          rawRows.forEach((row, i) => {
+            if (i === 0) return; // пропускаем строку заголовков
+            
+            const dateVal = row[0]; // B - Дата
             if (!dateVal) return;
             
             let dateStr = '';
-            if (typeof dateVal === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateVal)) {
-              const [dd, mm, yyyy] = dateVal.split('.');
+            if (typeof dateVal === 'string' && /^\d{2}\.\d{2}\.\d{4}$/.test(dateVal.trim())) {
+              const [dd, mm, yyyy] = dateVal.trim().split('.');
               dateStr = `${yyyy}-${mm}-${dd}`;
             } else if (typeof dateVal === 'number' && dateVal > 40000) {
               const d = new Date((dateVal - 25569) * 86400 * 1000);
@@ -35,17 +38,20 @@ exports.handler = async function(event, context) {
             } else {
               dateStr = String(dateVal).trim();
             }
-            if (!dateStr) return;
+            if (!dateStr || dateStr === 'Дата') return;
 
-            const amt = parseFloat(String(row[4] || '0').replace(/[^\d.]/g, '')) || 0; // E - Сумма
+            const amt = typeof row[3] === 'number' ? row[3] :
+                        parseFloat(String(row[3] || '0').replace(/[^\d.]/g, '')) || 0;
+
+            if (!amt) return; // пропускаем строки без суммы
 
             rows.push({
               date:  dateStr,
-              type:  String(row[2] || '').trim(),   // C - Статья
-              contr: String(row[3] || '').trim(),   // D - Контрагент
+              type:  String(row[1] || '').trim(),   // C - Статья
+              contr: String(row[2] || '').trim(),   // D - Контрагент
               amt:   amt,                            // E - Сумма
-              proj:  String(row[5] || '').trim(),   // F - Проект
-              tech:  String(row[6] || '').trim()    // G - Разбивка по г/н
+              proj:  String(row[4] || '').trim(),   // F - Проект
+              tech:  String(row[5] || '').trim()    // G - Разбивка по г/н
             });
           });
 
